@@ -1,30 +1,39 @@
-import { prisma } from '@/lib/prisma';
+// web/app/page.tsx
+import { prisma } from "@/lib/prisma";
+import Storefront from "../components/Strorefront";
+import type { StoreProduct } from "../types/product";
 
-function toPlain<T>(data: T): T {
-  // Convert bigint -> number for safe JSON display (our prices are small)
-  return JSON.parse(
-    JSON.stringify(data, (_, v) => (typeof v === 'bigint' ? Number(v) : v))
-  );
-}
-
-export default async function Home() {
-  const product = await prisma.products.findFirst({
+export default async function HomePage() {
+  const productRaw = await prisma.products.findFirst({
     where: { active: true },
     include: {
       product_sizes: {
         where: { is_active: true },
-        orderBy: { label: 'asc' },
+        orderBy: { label: "asc" },
       },
     },
   });
 
-  return (
-    <main className="p-8">
-      <h1 className="text-3xl font-bold">One-Product Store</h1>
-      <p className="mt-2">Live data from your database:</p>
-      <pre className="mt-6 rounded-lg bg-gray-100 p-4 text-sm overflow-auto">
-        {JSON.stringify(toPlain(product), null, 2)}
-      </pre>
-    </main>
-  );
+  let product: StoreProduct | null = null;
+
+  if (productRaw) {
+    product = {
+      id: productRaw.id,
+      name: productRaw.name,
+      description: productRaw.description,
+      image_url: productRaw.image_url,
+      currency: productRaw.currency,
+      base_price_paise: Number(productRaw.base_price_paise),
+      out_of_stock: productRaw.out_of_stock,
+      product_sizes: productRaw.product_sizes.map((s) => ({
+        id: s.id,
+        label: s.label,
+        stock: Number(s.stock),
+        price_override_paise:
+          s.price_override_paise === null ? null : Number(s.price_override_paise),
+      })),
+    };
+  }
+
+  return <Storefront product={product} />;
 }
