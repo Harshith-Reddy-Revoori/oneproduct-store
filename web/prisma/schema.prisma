@@ -1,0 +1,152 @@
+// web/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")  // pooled at runtime
+  directUrl = env("DIRECT_URL")    
+}
+
+/* ---------- PRODUCTS ---------- */
+model products {
+  id               String   @id @db.Uuid
+  name             String
+  description      String?
+  image_url        String?
+  currency         String   @default("INR")
+  base_price_paise BigInt
+  active           Boolean  @default(true)
+  out_of_stock     Boolean  @default(false)
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  product_sizes product_sizes[]
+  orders        orders[]
+
+  @@map("products")
+}
+
+/* ---------- PRODUCT SIZES ---------- */
+model product_sizes {
+  id                   String   @id @db.Uuid
+  product_id           String   @db.Uuid
+  label                String
+  stock                BigInt   @default(0)
+  price_override_paise BigInt?
+  is_active            Boolean  @default(true)
+  created_at           DateTime @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime @default(now()) @db.Timestamptz(6)
+
+  product products @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@unique([product_id, label])
+  @@map("product_sizes")
+}
+
+/* ---------- COUPONS ---------- */
+model coupons {
+  id               String   @id @db.Uuid
+  code             String   @unique
+  kind             String
+  value            BigInt
+  min_amount_paise BigInt   @default(0)
+  valid_from       DateTime?
+  valid_to         DateTime?
+  usage_limit      BigInt?
+  used_count       BigInt   @default(0)
+  is_active        Boolean  @default(true)
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  orders orders[]
+
+  @@map("coupons")
+}
+
+/* ---------- ORDERS ---------- */
+model orders {
+  id                   String   @id @db.Uuid
+  order_number         String   @unique
+  user_email           String
+  customer_name        String
+  address_line1        String
+  address_line2        String?
+  city                 String
+  state                String
+  pincode              String
+  phone                String
+  product_id           String   @db.Uuid
+  size_label           String
+  quantity             BigInt   @default(1)
+  unit_price_paise     BigInt
+  discount_paise       BigInt   @default(0)
+  total_paise          BigInt
+  coupon_code          String?
+  payment_status       String   @default("pending")
+  payment_provider     String   @default("razorpay")
+  provider_order_id    String?
+  provider_payment_id  String?
+  provider_signature   String?
+  created_at           DateTime @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime @default(now()) @db.Timestamptz(6)
+  admin_note           String?
+
+  product products @relation(fields: [product_id], references: [id], onDelete: NoAction)
+  coupon  coupons? @relation(fields: [coupon_code], references: [code], onDelete: SetNull)
+
+  @@index([created_at])
+  @@map("orders")
+}
+
+
+// ---------- AUTH (for NextAuth) ----------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("customer") // 'admin' or 'customer'
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
