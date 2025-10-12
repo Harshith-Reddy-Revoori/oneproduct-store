@@ -6,13 +6,17 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")  // pooled at runtime
-  directUrl = env("DIRECT_URL")    
+  url       = env("DATABASE_URL")   // pooled at runtime
+  directUrl = env("DIRECT_URL")     // optional, can point to pooled too
 }
+
+/* =========================
+   STORE TABLES (public.*)
+   ========================= */
 
 /* ---------- PRODUCTS ---------- */
 model products {
-  id               String   @id @db.Uuid
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name             String
   description      String?
   image_url        String?
@@ -31,7 +35,7 @@ model products {
 
 /* ---------- PRODUCT SIZES ---------- */
 model product_sizes {
-  id                   String   @id @db.Uuid
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   product_id           String   @db.Uuid
   label                String
   stock                BigInt   @default(0)
@@ -48,7 +52,7 @@ model product_sizes {
 
 /* ---------- COUPONS ---------- */
 model coupons {
-  id               String   @id @db.Uuid
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   code             String   @unique
   kind             String
   value            BigInt
@@ -68,7 +72,7 @@ model coupons {
 
 /* ---------- ORDERS ---------- */
 model orders {
-  id                   String   @id @db.Uuid
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   order_number         String   @unique
   user_email           String
   customer_name        String
@@ -101,18 +105,25 @@ model orders {
   @@map("orders")
 }
 
-
-// ---------- AUTH (for NextAuth) ----------
+/* =========================
+   NEXTAUTH (public."User" etc.)
+   Matches the SQL you ran:
+   - Tables are TitleCased and quoted
+   - Some columns are quoted (mapped below)
+   ========================= */
 
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String?
-  email         String?   @unique
-  emailVerified DateTime?
+  email         String?  @unique
+  emailVerified DateTime? @map("emailVerified")
   image         String?
-  role          String    @default("customer") // 'admin' or 'customer'
-  accounts      Account[]
-  sessions      Session[]
+  role          String   @default("customer")
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("User")
 }
 
 model Account {
@@ -120,7 +131,7 @@ model Account {
   userId            String
   type              String
   provider          String
-  providerAccountId String
+  providerAccountId String  @map("providerAccountId")
   refresh_token     String?
   access_token      String?
   expires_at        Int?
@@ -132,15 +143,18 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("Account")
 }
 
 model Session {
   id           String   @id @default(cuid())
-  sessionToken String   @unique
+  sessionToken String   @unique @map("sessionToken")
   userId       String
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Session")
 }
 
 model VerificationToken {
@@ -148,5 +162,6 @@ model VerificationToken {
   token      String   @unique
   expires    DateTime
 
-  @@unique([identifier, token])
+  @@id([identifier, token])
+  @@map("VerificationToken")
 }
