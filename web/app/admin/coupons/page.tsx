@@ -43,8 +43,8 @@ async function requireAdmin() {
   if (!session || role !== "admin") redirect("/login");
 }
 
-/** Prisma coupon row type */
-type CouponRow = Prisma.couponsGetPayload<{}>;
+/** Prisma coupon row type — use `true` instead of `{}` */
+type CouponRow = Prisma.couponsGetPayload<true>;
 
 /** Admin DTO with numbers (no bigint) and strict kind union */
 type AdminCoupon = {
