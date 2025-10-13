@@ -3,16 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { formatPaise } from "@/lib/money";
 import type { Prisma } from "@prisma/client";
+import { updateOrderStatus, saveAdminNote } from "./actions";
 
 type Status = "pending" | "paid" | "failed" | "refunded";
-const STATUSES: Status[] = ["pending", "paid", "failed", "refunded"];
-function isStatus(s: unknown): s is Status {
-  return typeof s === "string" && (STATUSES as ReadonlyArray<string>).includes(s);
-}
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -20,12 +16,10 @@ async function requireAdmin() {
   if (!session || role !== "admin") redirect("/login");
 }
 
-/** Prisma row type for orders + product name */
 type OrderRow = Prisma.ordersGetPayload<{
   include: { product: { select: { name: true } } };
 }>;
 
-/** Admin DTO with numbers for currency/quantity fields */
 type AdminOrder = {
   id: string;
   order_number: string;
@@ -66,10 +60,10 @@ function toAdminOrder(row: OrderRow): AdminOrder {
     phone: row.phone,
     product_name: row.product?.name ?? null,
     size_label: row.size_label,
-    quantity: Number(row.quantity), // bigint -> number
-    unit_price_paise: Number(row.unit_price_paise), // bigint -> number
-    discount_paise: Number(row.discount_paise), // bigint -> number
-    total_paise: Number(row.total_paise), // bigint -> number
+    quantity: Number(row.quantity),
+    unit_price_paise: Number(row.unit_price_paise),
+    discount_paise: Number(row.discount_paise),
+    total_paise: Number(row.total_paise),
     payment_status: row.payment_status as Status,
     payment_provider: row.payment_provider,
     provider_order_id: row.provider_order_id,
@@ -79,57 +73,6 @@ function toAdminOrder(row: OrderRow): AdminOrder {
     updated_at: row.updated_at,
   };
 }
-
-/* actions */
-
-export async function updateOrderStatus(formData: FormData) {
-  "use server";
-  await requireAdmin();
-
-  const id = String(formData.get("id") || "");
-  const status = String(formData.get("payment_status") || "");
-  if (!id) redirect("/admin/orders?err=Missing%20id");
-  if (!isStatus(status)) redirect(`/admin/orders/${id}?err=Invalid%20status`);
-
-  try {
-    await prisma.orders.update({
-      where: { id },
-      data: { payment_status: status, updated_at: new Date() },
-    });
-  } catch {
-    redirect(`/admin/orders/${id}?err=Could%20not%20update%20status`);
-  }
-
-  try {
-    revalidatePath(`/admin/orders/${id}`);
-  } catch {}
-  redirect(`/admin/orders/${id}?ok=1`);
-}
-
-export async function saveAdminNote(formData: FormData) {
-  "use server";
-  await requireAdmin();
-
-  const id = String(formData.get("id") || "");
-  const note = String(formData.get("admin_note") || "");
-  if (!id) redirect("/admin/orders?err=Missing%20id");
-
-  try {
-    await prisma.orders.update({
-      where: { id },
-      data: { admin_note: note || null, updated_at: new Date() },
-    });
-  } catch {
-    redirect(`/admin/orders/${id}?err=Could%20not%20save%20note`);
-  }
-
-  try {
-    revalidatePath(`/admin/orders/${id}`);
-  } catch {}
-  redirect(`/admin/orders/${id}?ok=1`);
-}
-
-/* page */
 
 export default async function OrderDetailPage({
   params,
@@ -163,12 +106,8 @@ export default async function OrderDetailPage({
         </Link>
       </div>
 
-      {ok ? (
-        <div className="rounded-lg border p-3 text-green-700 bg-green-50">Saved ✓</div>
-      ) : null}
-      {err ? (
-        <div className="rounded-lg border p-3 text-red-700 bg-red-50">{err}</div>
-      ) : null}
+      {ok ? <div className="rounded-lg border p-3 text-green-700 bg-green-50">Saved ✓</div> : null}
+      {err ? <div className="rounded-lg border p-3 text-red-700 bg-red-50">{err}</div> : null}
 
       <section className="rounded-2xl border p-6 grid md:grid-cols-2 gap-6">
         <div className="space-y-1">
@@ -185,15 +124,11 @@ export default async function OrderDetailPage({
         <div className="space-y-1">
           <h2 className="text-xl font-semibold">Order</h2>
           <div>Product: {o.product_name ?? "Product"}</div>
-          <div>
-            Size: {o.size_label} • Qty: {o.quantity}
-          </div>
+          <div>Size: {o.size_label} • Qty: {o.quantity}</div>
           <div>Unit: {formatPaise(o.unit_price_paise)}</div>
           <div>Discount: {formatPaise(o.discount_paise)}</div>
           <div className="font-semibold">Total: {formatPaise(o.total_paise)}</div>
-          <div>
-            Status: <b>{o.payment_status}</b>
-          </div>
+          <div>Status: <b>{o.payment_status}</b></div>
           <div className="text-sm text-gray-600">Provider: {o.payment_provider ?? "—"}</div>
           <div className="text-xs text-gray-500">
             Order ID: {o.provider_order_id || "—"}
@@ -208,15 +143,9 @@ export default async function OrderDetailPage({
 
         <form action={updateOrderStatus} className="flex gap-2 items-center">
           <input type="hidden" name="id" value={o.id} />
-          <select
-            name="payment_status"
-            defaultValue={o.payment_status}
-            className="border rounded-lg p-2"
-          >
-            {STATUSES.map((s: Status) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+          <select name="payment_status" defaultValue={o.payment_status} className="border rounded-lg p-2">
+            {(["pending", "paid", "failed", "refunded"] as const).map((s) => (
+              <option key={s} value={s}>{s}</option>
             ))}
           </select>
           <button className="border rounded-xl px-3 py-2 text-sm">Save status</button>

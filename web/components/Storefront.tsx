@@ -62,7 +62,10 @@ export default function Storefront({ product }: { product: StoreProduct | null }
   const router = useRouter();
   const prefersReduced = useReducedMotion();
 
-  const sizes: StoreProduct["product_sizes"] = (product?.product_sizes ?? []) as StoreProduct["product_sizes"];
+  const sizes = useMemo<StoreProduct["product_sizes"]>(
+    () => (product?.product_sizes ?? []) as StoreProduct["product_sizes"],
+    [product]
+  );
 
   const priceFor = useCallback(
     (s: SizeRow): number => (s.price_override_paise ?? (product?.base_price_paise ?? 0)) as number,

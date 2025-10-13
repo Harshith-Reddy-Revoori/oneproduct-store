@@ -1,145 +1,109 @@
 // web/app/admin/product/page.tsx
 import { prisma } from "@/lib/prisma";
-import { rupeesToPaise, formatPaise } from "@/lib/money";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
+import type { Prisma } from "@prisma/client";
+import { saveProduct } from "./actions";
 
-function toPlain<T>(data: T): T {
-  // Convert BigInt fields so we can safely render JSON/strings
-  return JSON.parse(
-    JSON.stringify(data, (_, v) => (typeof v === "bigint" ? Number(v) : v))
-  );
-}
-
-// --- Server action: save product price + stock toggle ---
-async function saveProduct(formData: FormData) {
-  "use server";
+async function requireAdmin() {
   const session = await getServerSession(authOptions);
-  const role = (session as any)?.role;
-  if (!session || role !== "admin") {
-    throw new Error("Unauthorized");
-  }
-
-  // Single active product
-  const current = await prisma.products.findFirst({ where: { active: true } });
-  if (!current) throw new Error("No active product found");
-
-  const rupees = String(formData.get("price_rupees") || "").trim();
-  const outOfStock = formData.get("out_of_stock") === "on";
-
-  const base_price_paise = rupeesToPaise(rupees);
-
-  await prisma.products.update({
-    where: { id: current.id },
-    data: {
-      base_price_paise,
-      out_of_stock: outOfStock,
-      updated_at: new Date(),
-    },
-  });
-
-  redirect("/admin/product?saved=1");
+  const role = (session as unknown as { role?: string })?.role;
+  if (!session || role !== "admin") redirect("/login");
 }
+
+type ProductRow = Prisma.productsGetPayload<true>;
 
 export default async function ProductAdminPage({
   searchParams,
 }: {
-  // Next.js 15: searchParams is async
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const session = await getServerSession(authOptions);
-  const role = (session as any)?.role;
-  if (!session || role !== "admin") redirect("/login");
+  await requireAdmin();
 
-  // Await searchParams once, then read values
   const sp = await searchParams;
-  const saved = Array.isArray(sp.saved) ? sp.saved[0] : sp.saved;
+  const ok = Array.isArray(sp.ok) ? sp.ok[0] : sp.ok;
+  const err = Array.isArray(sp.err) ? sp.err[0] : sp.err;
 
-  const product = await prisma.products.findFirst({
+  const product = (await prisma.products.findFirst({
     where: { active: true },
-    include: {
-      product_sizes: {
-        where: { is_active: true },
-        orderBy: { label: "asc" },
-      },
-    },
-  });
-
-  if (!product) {
-    return (
-      <main className="p-8">
-        <h1 className="text-3xl font-bold">Product</h1>
-        <p className="mt-4 text-red-600">
-          No active product found. Create one in Supabase.
-        </p>
-      </main>
-    );
-  }
-
-  const p = toPlain(product);
-  const currentPrice = formatPaise(p.base_price_paise);
+  })) as ProductRow | null;
 
   return (
     <main className="p-8 space-y-6">
       <h1 className="text-3xl font-bold">Product</h1>
 
-      {saved ? (
-        <div className="rounded-lg border p-3 text-green-700 bg-green-50">
-          Saved ✓
-        </div>
-      ) : null}
+      {ok ? <div className="rounded border p-3 bg-green-50 text-green-700">Saved ✓</div> : null}
+      {err ? <div className="rounded border p-3 bg-red-50 text-red-700">{err}</div> : null}
 
-      <div className="rounded-2xl border p-6 space-y-4">
-        <div className="grid gap-2">
-          <div>
-            <span className="font-semibold">Name:</span> {p.name}
-          </div>
-          <div>
-            <span className="font-semibold">Currency:</span> {p.currency}
-          </div>
-          <div>
-            <span className="font-semibold">Current price:</span>{" "}
-            {currentPrice}
-          </div>
-          <div>
-            <span className="font-semibold">Sizes:</span>{" "}
-            {p.product_sizes?.map((s: any) => s.label).join(", ") || "—"}
-          </div>
-          <div>
-            <span className="font-semibold">Out of stock:</span>{" "}
-            {p.out_of_stock ? "Yes" : "No"}
-          </div>
-        </div>
-
-        <form action={saveProduct} className="mt-4 space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium">Price (₹ rupees)</span>
+      <section className="rounded-2xl border p-6 space-y-4">
+        <form action={saveProduct} className="grid gap-4 md:grid-cols-2">
+          <input type="hidden" name="id" value={product?.id ?? ""} />
+          <div className="md:col-span-2">
+            <label className="text-sm font-medium">Name</label>
             <input
-              name="price_rupees"
+              name="name"
+              defaultValue={product?.name ?? ""}
+              className="mt-1 border rounded-lg p-3 w-full"
+              required
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="text-sm font-medium">Description</label>
+            <textarea
+              name="description"
+              defaultValue={product?.description ?? ""}
+              className="mt-1 border rounded-lg p-3 w-full min-h-[120px]"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Image URL</label>
+            <input
+              name="image_url"
+              defaultValue={product?.image_url ?? ""}
+              className="mt-1 border rounded-lg p-3 w-full"
+              placeholder="https://…"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Currency</label>
+            <input
+              name="currency"
+              defaultValue={product?.currency ?? "INR"}
+              className="mt-1 border rounded-lg p-3 w-full"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Base price (₹)</label>
+            <input
+              name="base_rupees"
               type="number"
               step="0.01"
               min="0"
-              defaultValue={(Number(p.base_price_paise) / 100).toFixed(2)}
-              className="mt-1 w-full border rounded-lg p-3"
-              required
+              defaultValue={product ? (Number(product.base_price_paise) / 100).toFixed(2) : "0.00"}
+              className="mt-1 border rounded-lg p-3 w-full"
             />
-          </label>
+          </div>
 
-          <label className="flex items-center gap-2">
-            <input
-              name="out_of_stock"
-              type="checkbox"
-              defaultChecked={p.out_of_stock}
-            />
-            <span>Mark as out of stock</span>
-          </label>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium">Out of stock</label>
+            <input name="out_of_stock" type="checkbox" defaultChecked={product?.out_of_stock ?? false} />
+          </div>
 
-          <button className="rounded-xl border px-4 py-2 font-semibold">
-            Save
-          </button>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium">Active (listed on site)</label>
+            <input name="active" type="checkbox" defaultChecked={product?.active ?? true} />
+          </div>
+
+          <div className="md:col-span-2 flex justify-end">
+            <button className="border rounded-xl px-5 py-3 font-semibold">Save product</button>
+          </div>
         </form>
-      </div>
+      </section>
     </main>
   );
 }
