@@ -1,6 +1,6 @@
 // web/app/page.tsx
 import { prisma } from "@/lib/prisma";
-import Storefront from "../components/Strorefront";
+import Storefront from "../components/Storefront";
 import type { StoreProduct } from "../types/product";
 
 export default async function HomePage() {
