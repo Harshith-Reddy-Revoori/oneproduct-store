@@ -1,0 +1,253 @@
+/* ------------------------------------------------------------------
+   OneProduct "Ace" Overlay — global, scoped by .ace
+   Works with your Tailwind classes; no component rewrites required.
+   File: web/app/ace-theme.css
+------------------------------------------------------------------- */
+
+/* Fonts (optional; or use next/font in layout) */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap");
+
+/* ======= TOKENS ================================================== */
+.ace {
+  --bg: #ffffff;
+  --bg-muted: #f6f7f8;
+
+  --text: #0f172a;
+  --text-muted: #475569;
+  --heading: #0b1220;
+
+  --brand: #0aa37f;        /* emerald */
+  --brand-600: #0a8e72;
+  --brand-700: #08755f;
+
+  --border: #e6e7eb;
+  --border-2: #eceef1;
+
+  --surface: #ffffff;
+  --surface-soft: #ffffffcc; /* 80% */
+  --surface-tint: #f9fafb;
+
+  --shadow-sm: 0 4px 16px rgba(0,0,0,.06);
+  --shadow-md: 0 10px 30px rgba(0,0,0,.10);
+
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 24px;
+  --r-2xl: 28px;
+
+  --container: 72rem; /* ~max-w-6xl */
+  --section-y: clamp(48px, 8vw, 96px);
+
+  --easing: cubic-bezier(.22,1,.36,1);
+  --t-fast: 160ms;
+  --t-med: 260ms;
+}
+
+/* ======= BASE / TYPO ============================================ */
+.ace {
+  color: var(--text);
+  background: var(--bg);
+  font: 400 16px/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.ace h1, .ace h2, .ace h3, .ace h4 {
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+.ace h1 { font: 800 clamp(36px, 6vw, 60px)/1.1 "Playfair Display", Georgia, serif; }
+.ace h2 { font: 800 clamp(28px, 4.2vw, 40px)/1.15 Inter, system-ui; }
+.ace h3 { font: 700 clamp(22px, 3vw, 28px)/1.2 Inter, system-ui; }
+.ace p  { margin: 0 0 14px; }
+.ace .lead { font-size: clamp(18px,2.2vw,20px); color: var(--text-muted); }
+
+/* ======= LAYOUT HELPERS (works alongside Tailwind) ============== */
+.ace .container { max-width: var(--container); margin-inline: auto; }
+.ace .section   { padding-block: var(--section-y); }
+.ace .section-alt { padding-block: var(--section-y); background: var(--bg-muted); }
+
+/* ======= GLOBAL LINK/BUTTON POLISH ============================== */
+.ace a { text-decoration: none; transition: opacity var(--t-fast) var(--easing); }
+.ace a:hover { opacity: .9; }
+
+/* Style your generic CTA buttons (incl. plain <button> in your pages) */
+.ace button, .ace .btn {
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 12px 18px;
+  font-weight: 600;
+  transition: transform var(--t-fast) var(--easing), box-shadow var(--t-fast) var(--easing), border-color var(--t-fast) var(--easing);
+}
+.ace button:hover, .ace .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--brand);
+}
+.ace .btn-primary, .ace button[data-variant="primary"] {
+  background: var(--brand);
+  color: #fff;
+  border-color: transparent;
+}
+.ace .btn-primary:hover, .ace button[data-variant="primary"]:hover {
+  background: var(--brand-600);
+  box-shadow: var(--shadow-md);
+}
+
+/* ======= NAVBAR / HEADER ======================================== */
+.ace header.sticky, .ace .navbar {
+  backdrop-filter: blur(10px);
+  background: color-mix(in oklab, var(--bg) 90%, transparent);
+  border-bottom: 1px solid var(--border-2);
+  transition: border-color var(--t-fast) var(--easing), background var(--t-fast) var(--easing);
+}
+.ace header.sticky a { font-weight: 600; }
+
+/* ======= CARDS / PANELS (matches your rounded-2xl + border use) = */
+.ace .rounded-2xl.border,
+.ace .rounded-xl.border,
+.ace .card,
+.ace .panel {
+  background: var(--surface);
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Enhance your translucent purchase card (`bg-white/80 backdrop-blur`) */
+.ace .bg-white\/80.backdrop-blur,
+.ace .bg-white\/70.backdrop-blur {
+  background: var(--surface-soft) !important;
+  box-shadow: var(--shadow-md);
+  border-color: var(--border) !important;
+}
+
+/* Give all images with rounded corners a soft shadow */
+.ace img.rounded-2xl, .ace .rounded-2xl > img {
+  box-shadow: var(--shadow-sm);
+}
+
+/* ======= HOVER SHADOW UTILS OVERRIDES =========================== */
+/* Tailwind creates `.hover\:shadow:hover` etc. We upgrade the shadow. */
+.ace .hover\:shadow:hover { box-shadow: var(--shadow-sm) !important; }
+.ace .hover\:shadow-sm:hover { box-shadow: var(--shadow-sm) !important; }
+.ace .hover\:shadow-md:hover { box-shadow: var(--shadow-md) !important; }
+
+/* ======= FORMS (global) ========================================= */
+.ace input[type="text"], .ace input[type="email"], .ace input[type="password"],
+.ace input[type="number"], .ace input[type="tel"], .ace textarea, .ace select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  outline: none;
+  transition: border-color var(--t-fast) var(--easing), box-shadow var(--t-fast) var(--easing);
+}
+.ace textarea { min-height: 120px; resize: vertical; }
+.ace input:focus, .ace textarea:focus, .ace select:focus {
+  border-color: color-mix(in oklab, var(--brand) 50%, var(--border));
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--brand) 18%, transparent);
+}
+
+/* Quantity input in your Storefront purchase card */
+.ace input.w-24.border.rounded-lg.p-2 {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+/* ======= LIST “CHIPS” (your feature list) ======================= */
+.ace .rounded-full.border.px-3.py-2 {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+/* ======= TABLES (admin/orders) ================================== */
+.ace table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.ace thead th {
+  background: #f7faf9;
+  font-weight: 700;
+  color: #0f172a;
+}
+.ace th, .ace td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-2);
+}
+.ace tbody tr:hover { background: #f9fbfa; }
+
+/* ======= CHECKOUT LAYOUT HINTS ================================== */
+/* Works with your existing Tailwind grid; just polishes the boxes. */
+.ace .checkout .rounded-2xl.border,
+.ace .checkout .box,
+.ace .summary {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ======= STICKY RIGHT CARD (Storefront BUY) ===================== */
+.ace .md\:sticky.md\:top-20.rounded-2xl.border.p-5 {
+  background: var(--surface-soft);
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-md);
+}
+
+/* ======= PRICE / META EMPHASIS ================================== */
+.ace .text-2xl.font-bold, .ace .text-xl.font-bold {
+  letter-spacing: -0.01em;
+}
+
+/* ======= BADGES / STATUS (can be used in admin too) ============= */
+.ace .status,
+.ace .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+}
+.ace .status.ok, .ace .badge.ok { background:#e8fbf5; color:#0b8e70; }
+.ace .status.warn, .ace .badge.warn { background:#fff7e6; color:#a16207; }
+.ace .status.bad, .ace .badge.bad { background:#fee2e2; color:#b91c1c; }
+
+/* ======= FOOTER POLISH ========================================== */
+.ace footer { color: var(--text-muted); }
+.ace footer .border-t { border-color: var(--border) !important; }
+
+/* ======= “Brand” gradients (you already use a glow) ============= */
+.ace .brand-gradient-text {
+  background: linear-gradient(90deg, var(--brand), #15c39d);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.ace .ribbon {
+  background: linear-gradient(90deg, var(--brand), #15c39d);
+  color: #fff; text-align: center; padding: 10px 14px; font-weight: 700; letter-spacing: .02em;
+  border-radius: 12px;
+}
+
+/* ======= DARK MODE (optional) =================================== */
+@media (prefers-color-scheme: dark) {
+  .ace {
+    --bg:#0c0f12; --bg-muted:#0f1317;
+    --surface:#12161b; --surface-soft:#12161bcc;
+    --text:#e5e7eb; --text-muted:#a7b0ba; --heading:#f3f4f6;
+    --border:#1f2730; --border-2:#1a2129;
+    --shadow-sm: 0 4px 18px rgba(0,0,0,.35);
+    --shadow-md: 0 12px 36px rgba(0,0,0,.45);
+  }
+  .ace thead th { background:#0f1519; }
+  .ace header.sticky, .ace .navbar { border-bottom-color: var(--border); }
+}
