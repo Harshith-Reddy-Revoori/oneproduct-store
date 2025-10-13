@@ -1,72 +1,51 @@
 // web/auth.ts
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import EmailProvider from "next-auth/providers/email";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+type AdminUser = User & { role: "admin" };
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
-  session: { strategy: "jwt" },
-
   providers: [
-    // Admin password login (kept as-is)
     CredentialsProvider({
       name: "Admin",
-      credentials: { password: { label: "Password", type: "password" } },
-      async authorize(credentials) {
-        const ok =
-          credentials?.password &&
-          process.env.ADMIN_PASSWORD &&
-          credentials.password === process.env.ADMIN_PASSWORD;
-        if (!ok) return null;
-        return {
-          id: "admin",
-          name: "Store Admin",
-          email: process.env.ADMIN_EMAIL || "admin@example.com",
-          role: "admin",
-        } as any;
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
-    }),
+      async authorize(credentials) {
+        const email = (credentials?.email || "").toLowerCase().trim();
+        const password = credentials?.password || "";
 
-    // Customer email magic link
-    EmailProvider({
-      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
-      sendVerificationRequest: async ({ identifier, url, provider }) => {
-        // identifier is the user's email
-        // url is the magic sign-in link
-        await resend.emails.send({
-          from: (provider as any).from,
-          to: identifier,
-          subject: "Your sign-in link",
-          html: `
-            <div style="font-family:Arial,sans-serif">
-              <h2>Sign in to One-Product Store</h2>
-              <p>Click the button to sign in:</p>
-              <p><a href="${url}" style="display:inline-block;padding:10px 16px;border:1px solid #000;border-radius:8px;text-decoration:none;">Sign in</a></p>
-              <p style="font-size:12px;color:#666">If you didn't request this, you can ignore this email.</p>
-            </div>
-          `,
-        });
+        const adminEmail = (process.env.ADMIN_EMAIL || "").toLowerCase().trim();
+        const adminPassword = process.env.ADMIN_PASSWORD || "";
+
+        if (!email || !password) return null;
+        if (email === adminEmail && password === adminPassword) {
+          const user: AdminUser = {
+            id: "admin",
+            name: "Admin",
+            email: adminEmail,
+            role: "admin",
+          };
+          return user;
+        }
+        return null;
       },
     }),
   ],
-
-  pages: {
-    verifyRequest: "/verify-request", // nice confirmation page after they submit email
-  },
-
+  session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
-      if (user && (user as any).role) token.role = (user as any).role;
+      const withRole = user as Partial<{ role: string }> | null;
+      if (withRole?.role) token.role = withRole.role;
       return token;
     },
     async session({ session, token }) {
-      if (token?.role) (session as any).role = token.role;
+      // Attach role onto session for easy checks in server components
+      (session as unknown as { role?: string }).role =
+        (token as unknown as { role?: string }).role || "user";
       return session;
     },
   },
+  pages: { signIn: "/login" },
 };
