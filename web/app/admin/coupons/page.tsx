@@ -5,14 +5,9 @@ import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { rupeesToPaise, formatPaise } from "@/lib/money";
+import { Prisma } from "@prisma/client";
 
 /* ---------------- helpers ---------------- */
-
-function toPlain<T>(data: T): T {
-  return JSON.parse(
-    JSON.stringify(data, (_, v) => (typeof v === "bigint" ? Number(v) : v))
-  );
-}
 
 function parseKind(input: string | null | undefined): "AMOUNT" | "PERCENT" | null {
   const k = (input || "").trim().toUpperCase();
@@ -30,13 +25,13 @@ function parseDateOrNull(x: string | null | undefined): Date | null {
   const s = (x || "").trim();
   if (!s) return null;
   const d = new Date(s);
-  return isNaN(d.getTime()) ? null : d;
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
 function dateToInputValue(d?: string | Date | null): string {
   if (!d) return "";
   const dt = new Date(d);
-  if (isNaN(dt.getTime())) return "";
+  if (Number.isNaN(dt.getTime())) return "";
   const tzOffset = dt.getTimezoneOffset() * 60000;
   const local = new Date(dt.getTime() - tzOffset).toISOString().slice(0, 16);
   return local; // "YYYY-MM-DDTHH:mm"
@@ -44,8 +39,48 @@ function dateToInputValue(d?: string | Date | null): string {
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
-  const role = (session as any)?.role;
+  const role = (session as unknown as { role?: string })?.role;
   if (!session || role !== "admin") redirect("/login");
+}
+
+/** Prisma coupon row type */
+type CouponRow = Prisma.couponsGetPayload<{}>;
+
+/** Admin DTO with numbers (no bigint) and strict kind union */
+type AdminCoupon = {
+  id: string;
+  code: string;
+  kind: "AMOUNT" | "PERCENT";
+  value: number; // paise if AMOUNT, percent if PERCENT
+  min_amount_paise: number;
+  valid_from: Date | null;
+  valid_to: Date | null;
+  usage_limit: number | null;
+  used_count: number;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+};
+
+function toAdminCouponList(rows: CouponRow[]): AdminCoupon[] {
+  return rows.map((c) => {
+    const k = String(c.kind || "").toUpperCase();
+    const kind: "AMOUNT" | "PERCENT" = k === "AMOUNT" ? "AMOUNT" : "PERCENT";
+    return {
+      id: c.id,
+      code: c.code,
+      kind,
+      value: Number(c.value), // bigint -> number
+      min_amount_paise: Number(c.min_amount_paise ?? 0),
+      valid_from: c.valid_from,
+      valid_to: c.valid_to,
+      usage_limit: c.usage_limit == null ? null : Number(c.usage_limit),
+      used_count: Number(c.used_count ?? 0),
+      is_active: c.is_active,
+      created_at: c.created_at,
+      updated_at: c.updated_at,
+    };
+  });
 }
 
 /* ---------------- server actions ---------------- */
@@ -87,19 +122,18 @@ export async function addCoupon(formData: FormData) {
     await prisma.coupons.create({
       data: {
         code: codeRaw,
-        kind,
+        kind, // stored as string; we pass "AMOUNT" | "PERCENT"
         value,
         min_amount_paise,
         valid_from: validFrom,
         valid_to: validTo,
         usage_limit: usageLimit,
         is_active: isActive,
-        // used_count defaults to 0 in DB
         updated_at: new Date(),
       },
     });
-  } catch (e: any) {
-    if (e?.code === "P2002") {
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       redirect("/admin/coupons?err=Coupon%20code%20already%20exists");
     }
     redirect("/admin/coupons?err=Could%20not%20create%20coupon");
@@ -193,7 +227,6 @@ export async function deleteCoupon(formData: FormData) {
 export default async function CouponsAdminPage({
   searchParams,
 }: {
-  // Next.js 15: searchParams is async
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireAdmin();
@@ -202,25 +235,21 @@ export default async function CouponsAdminPage({
   const ok = Array.isArray(sp.ok) ? sp.ok[0] : sp.ok;
   const err = Array.isArray(sp.err) ? sp.err[0] : sp.err;
 
-  const coupons = await prisma.coupons.findMany({
+  const coupons = (await prisma.coupons.findMany({
     orderBy: { created_at: "desc" },
-  });
+  })) as CouponRow[];
 
-  const list = toPlain(coupons);
+  const list: AdminCoupon[] = toAdminCouponList(coupons);
 
   return (
     <main className="p-8 space-y-6">
       <h1 className="text-3xl font-bold">Coupons</h1>
 
       {ok ? (
-        <div className="rounded-lg border p-3 text-green-700 bg-green-50">
-          Saved ✓
-        </div>
+        <div className="rounded-lg border p-3 text-green-700 bg-green-50">Saved ✓</div>
       ) : null}
       {err ? (
-        <div className="rounded-lg border p-3 text-red-700 bg-red-50">
-          {err}
-        </div>
+        <div className="rounded-lg border p-3 text-red-700 bg-red-50">{err}</div>
       ) : null}
 
       {/* Create */}
@@ -257,18 +286,8 @@ export default async function CouponsAdminPage({
             placeholder="Min ₹ (optional)"
             className="border rounded-lg p-3"
           />
-          <input
-            name="valid_from"
-            type="datetime-local"
-            className="border rounded-lg p-3"
-            placeholder="Valid from"
-          />
-          <input
-            name="valid_to"
-            type="datetime-local"
-            className="border rounded-lg p-3"
-            placeholder="Valid to"
-          />
+          <input name="valid_from" type="datetime-local" className="border rounded-lg p-3" />
+          <input name="valid_to" type="datetime-local" className="border rounded-lg p-3" />
           <input
             name="usage_limit"
             type="number"
@@ -296,7 +315,7 @@ export default async function CouponsAdminPage({
           <p className="text-gray-600">No coupons yet.</p>
         ) : (
           <div className="grid gap-3">
-            {list.map((c: any) => (
+            {list.map((c: AdminCoupon) => (
               <div
                 key={c.id}
                 className="grid gap-3 md:grid-cols-[160px_160px_160px_160px_1fr_1fr_140px_120px_auto] items-center border rounded-xl p-3"
@@ -316,7 +335,7 @@ export default async function CouponsAdminPage({
                     type="number"
                     step="1"
                     min="0"
-                    defaultValue={c.kind === "PERCENT" ? c.value : (Number(c.value) / 100).toFixed(0)}
+                    defaultValue={c.kind === "PERCENT" ? c.value : Math.round(c.value / 100)}
                     className="border rounded-lg p-3"
                   />
 
@@ -325,20 +344,20 @@ export default async function CouponsAdminPage({
                     type="number"
                     step="0.01"
                     min="0"
-                    defaultValue={(Number(c.min_amount_paise) / 100).toFixed(2)}
+                    defaultValue={(c.min_amount_paise / 100).toFixed(2)}
                     className="border rounded-lg p-3"
                   />
 
                   <input
                     name="valid_from"
                     type="datetime-local"
-                    defaultValue={dateToInputValue(c.valid_from)}
+                    defaultValue={dateToInputValue(c.valid_from ?? null)}
                     className="border rounded-lg p-3"
                   />
                   <input
                     name="valid_to"
                     type="datetime-local"
-                    defaultValue={dateToInputValue(c.valid_to)}
+                    defaultValue={dateToInputValue(c.valid_to ?? null)}
                     className="border rounded-lg p-3"
                   />
 
