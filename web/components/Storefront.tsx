@@ -1,23 +1,42 @@
 // web/components/Storefront.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import type { StoreProduct } from "@/types/product";
+
+type SizeRow = StoreProduct["product_sizes"][number];
 
 function formatPaise(p: number | null | undefined) {
   if (p == null) return "₹0.00";
   return `₹${(Number(p) / 100).toFixed(2)}`;
 }
 
-const heroImages = [
-  "https://images.unsplash.com/photo-1543165796-5426273eaab1?q=80&w=1400&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1400&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1571772981739-b32c9c2ee0de?q=80&w=1400&auto=format&fit=crop",
+const heroImages: { src: string; alt: string; w: number; h: number }[] = [
+  {
+    src: "https://images.unsplash.com/photo-1543165796-5426273eaab1?q=80&w=1400&auto=format&fit=crop",
+    alt: "Fresh natural sweetener visual 1",
+    w: 1200,
+    h: 900,
+  },
+  {
+    src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1400&auto=format&fit=crop",
+    alt: "Fresh natural sweetener visual 2",
+    w: 1200,
+    h: 900,
+  },
+  {
+    src: "https://images.unsplash.com/photo-1571772981739-b32c9c2ee0de?q=80&w=1400&auto=format&fit=crop",
+    alt: "Fresh natural sweetener visual 3",
+    w: 1200,
+    h: 900,
+  },
 ];
 
-const featureChips = [
+const featureChips: string[] = [
   "1️⃣ Zero Calories, Zero Sugar Spike",
   "2️⃣ Tastes Just Like Sugar — No Aftertaste",
   "3️⃣ Tooth-Friendly Sweetness",
@@ -26,7 +45,7 @@ const featureChips = [
   "6️⃣ No Artificial Additives",
 ];
 
-const tenNoList = [
+const tenNoList: Array<{ t: string; d: string }> = [
   { t: "⚡ 1. No Blood Sugar Spikes", d: "Zero glycemic impact — keeps glucose & insulin balanced for stable energy all day." },
   { t: "💓 2. No Fat Storage", d: "Supports metabolism & fat burning instead of triggering weight gain." },
   { t: "🧠 3. No Cravings or Energy Crashes", d: "Natural sweetness without the addictive sugar-dopamine rollercoaster." },
@@ -43,36 +62,34 @@ export default function Storefront({ product }: { product: StoreProduct | null }
   const router = useRouter();
   const prefersReduced = useReducedMotion();
 
-  // Explicit type → no implicit any
-  const sizes: StoreProduct["product_sizes"] =
-    (product?.product_sizes ?? []) as StoreProduct["product_sizes"];
+  const sizes: StoreProduct["product_sizes"] = (product?.product_sizes ?? []) as StoreProduct["product_sizes"];
 
-  // Helper: price for a given size (override → fallback to product base)
-  const priceFor = (s: StoreProduct["product_sizes"][number]) =>
-    (s.price_override_paise ?? (product?.base_price_paise ?? 0)) as number;
+  const priceFor = useCallback(
+    (s: SizeRow): number => (s.price_override_paise ?? (product?.base_price_paise ?? 0)) as number,
+    [product?.base_price_paise]
+  );
 
-  const prices = sizes.map(priceFor);
-  const minPricePaise =
-    prices.length > 0
-      ? Math.min(...prices)
-      : (product?.base_price_paise ?? 0);
-  const hasVariedPrices =
-    prices.length > 1 && prices.some((p) => p !== prices[0]);
+  const prices: number[] = sizes.map(priceFor);
+  const minPricePaise: number = prices.length > 0 ? Math.min(...prices) : (product?.base_price_paise ?? 0);
+  const hasVariedPrices: boolean = prices.length > 1 && prices.some((p) => p !== prices[0]);
 
   const inStockSizes = sizes.filter((s) => s.stock > 0);
   const defaultLabel = inStockSizes[0]?.label ?? sizes[0]?.label ?? "";
-  const [size, setSize] = useState(defaultLabel);
-  const [qty, setQty] = useState(1);
-  const [coupon, setCoupon] = useState("");
+  const [size, setSize] = useState<string>(defaultLabel);
+  const [qty, setQty] = useState<number>(1);
+  const [coupon, setCoupon] = useState<string>("");
 
   const unitPaise = useMemo(() => {
     if (!product) return 0;
     const row = sizes.find((s) => s.label === size);
     return (row ? priceFor(row) : product.base_price_paise) as number;
-  }, [product, sizes, size]);
+  }, [product, sizes, size, priceFor]);
 
   const handleBuy = () => {
-    if (!size) return alert("Please choose a size.");
+    if (!size) {
+      alert("Please choose a size.");
+      return;
+    }
     router.push(
       `/checkout?size=${encodeURIComponent(size)}&qty=${qty}${
         coupon ? `&coupon=${encodeURIComponent(coupon)}` : ""
@@ -92,12 +109,15 @@ export default function Storefront({ product }: { product: StoreProduct | null }
       {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur bg-white/60 border-b">
         <nav className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <a href="/" className="font-extrabold tracking-tight text-xl">SugarPro</a>
+          {/* Use Link instead of <a href="/"> */}
+          <Link href="/" className="font-extrabold tracking-tight text-xl">
+            SugarPro
+          </Link>
           <div className="hidden sm:flex items-center gap-6 text-sm">
             <a href="#benefits" className="hover:underline">Benefits</a>
             <a href="#science" className="hover:underline">Science</a>
             <a href="#buy" className="hover:underline">Buy</a>
-            <a href="/account" className="hover:underline">Account</a>
+            <Link href="/account" className="hover:underline">Account</Link>
           </div>
         </nav>
       </header>
@@ -158,18 +178,26 @@ export default function Storefront({ product }: { product: StoreProduct | null }
           </div>
         </div>
 
-        {/* Image collage */}
+        {/* Image collage (use next/image) */}
         <div className="grid grid-cols-2 gap-4">
-          {heroImages.map((src, i) => (
+          {heroImages.map((img, i) => (
             <motion.div
-              key={src}
+              key={img.src}
               initial={prefersReduced ? undefined : { opacity: 0, scale: 0.98 }}
               whileInView={prefersReduced ? undefined : { opacity: 1, scale: 1 }}
               viewport={{ once: true, amount: 0.5 }}
               transition={{ delay: 0.08 * i, duration: 0.5 }}
               className="overflow-hidden rounded-2xl border"
             >
-              <img src={src} alt="Natural sweetener visual" className="h-48 md:h-64 w-full object-cover" />
+              <Image
+                src={img.src}
+                alt={img.alt}
+                width={img.w}
+                height={img.h}
+                className="h-48 md:h-64 w-full object-cover"
+                sizes="(max-width: 768px) 50vw, 33vw"
+                priority={i === 0}
+              />
             </motion.div>
           ))}
         </div>
@@ -236,7 +264,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
             <div className="mt-2 flex flex-wrap gap-2">
               {sizes.length === 0 ? (
                 <span className="text-sm text-gray-500">No sizes configured.</span>
-              ) : sizes.map((s: StoreProduct["product_sizes"][number]) => {
+              ) : sizes.map((s: SizeRow) => {
                   const sp = priceFor(s);
                   return (
                     <button
@@ -287,7 +315,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
 
           <button
             onClick={handleBuy}
-            disabled={!product || product.out_of_stock || !size}
+            disabled={isDisabled}
             className="mt-6 w-full rounded-xl border px-4 py-3 font-semibold disabled:opacity-50 hover:shadow"
           >
             {product?.out_of_stock ? "Out of stock" : "Buy now"}
@@ -302,10 +330,10 @@ export default function Storefront({ product }: { product: StoreProduct | null }
         <div className="border-t pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <div>© {new Date().getFullYear()} SugarPro</div>
           <nav className="flex gap-4">
-            <a className="hover:underline" href="/privacy">Privacy</a>
-            <a className="hover:underline" href="/returns">Returns</a>
-            <a className="hover:underline" href="/shipping">Shipping</a>
-            <a className="hover:underline" href="/terms">Terms</a>
+            <Link className="hover:underline" href="/privacy">Privacy</Link>
+            <Link className="hover:underline" href="/returns">Returns</Link>
+            <Link className="hover:underline" href="/shipping">Shipping</Link>
+            <Link className="hover:underline" href="/terms">Terms</Link>
           </nav>
         </div>
       </footer>
