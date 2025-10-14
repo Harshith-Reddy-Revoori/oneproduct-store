@@ -1,39 +1,37 @@
-// web/app/page.tsx
+import Storefront from "@/components/Storefront";
 import { prisma } from "@/lib/prisma";
-import Storefront from "../components/Storefront";
-import type { StoreProduct } from "../types/product";
+import type { StoreProduct } from "@/types/product";
 
-export default async function HomePage() {
-  const productRaw = await prisma.products.findFirst({
-    where: { active: true },
-    include: {
-      product_sizes: {
-        where: { is_active: true },
-        orderBy: { label: "asc" },
-      },
-    },
+export const revalidate = 60;
+
+export default async function Page() {
+  const db = await prisma.products.findFirst({
+    where: { active: true, out_of_stock: false },
+    include: { product_sizes: true },
+    orderBy: { created_at: "desc" },
   });
 
-  let product: StoreProduct | null = null;
-
-  if (productRaw) {
-    product = {
-      id: productRaw.id,
-      name: productRaw.name,
-      description: productRaw.description,
-      image_url: productRaw.image_url,
-      currency: productRaw.currency,
-      base_price_paise: Number(productRaw.base_price_paise),
-      out_of_stock: productRaw.out_of_stock,
-      product_sizes: productRaw.product_sizes.map((s) => ({
-        id: s.id,
-        label: s.label,
-        stock: Number(s.stock),
-        price_override_paise:
-          s.price_override_paise === null ? null : Number(s.price_override_paise),
-      })),
-    };
-  }
+  const product: StoreProduct | null =
+    db === null
+      ? null
+      : {
+          id: db.id,
+          name: db.name,
+          description: db.description ?? null,
+          image_url: db.image_url ?? null,
+          currency: db.currency,
+          base_price_paise: Number(db.base_price_paise),   // bigint -> number
+          out_of_stock: db.out_of_stock,                   // keep this (Storefront uses it)
+          product_sizes: db.product_sizes.map((s) => ({
+            id: s.id,
+            product_id: s.product_id,
+            label: s.label,
+            stock: Number(s.stock),                        // bigint -> number
+            price_override_paise:
+              s.price_override_paise == null ? null : Number(s.price_override_paise),
+            is_active: s.is_active,
+          })),
+        };
 
   return <Storefront product={product} />;
 }
