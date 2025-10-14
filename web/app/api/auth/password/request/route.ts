@@ -37,7 +37,7 @@ html: `<p>Click the link to reset your password (valid for 15 minutes):</p>
 });
 
 return NextResponse.json({ ok: true });
-} catch (e) {
+} catch {
 return NextResponse.json({ ok: true });
 }
 }

@@ -3,17 +3,22 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { prisma } from "../../../../lib/prisma";
 
-export default async function OrderDetail({ params }: { params: { id: string } }) {
+export default async function OrderDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params; // 👈 important for Next 15 types
+
   const session = await getServerSession(authOptions);
   const email = session?.user?.email;
 
-  // Guard instead of using non-null assertions
   if (!email) {
-    redirect(`/login?callbackUrl=/account/orders/${params.id}`);
+    redirect(`/login?callbackUrl=/account/orders/${id}`);
   }
 
   const order = await prisma.orders.findFirst({
-    where: { id: params.id, user_email: email },
+    where: { id, user_email: email },
     include: { product: true },
   });
 

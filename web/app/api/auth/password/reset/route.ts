@@ -25,7 +25,7 @@ data: { passwordHash: await hashPassword(password) },
 await prisma.verificationToken.delete({ where: { identifier_token: { identifier: vt.identifier, token } } });
 
 return NextResponse.json({ ok: true });
-} catch (e) {
+} catch {
 return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
 }
 }
