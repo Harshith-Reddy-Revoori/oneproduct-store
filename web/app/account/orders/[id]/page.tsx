@@ -1,11 +1,16 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { prisma } from "../../../../lib/prisma";
 
 export default async function OrderDetail({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  const email = session?.user?.email!;
+  const email = session?.user?.email;
+
+  // Guard instead of using non-null assertions
+  if (!email) {
+    redirect(`/login?callbackUrl=/account/orders/${params.id}`);
+  }
 
   const order = await prisma.orders.findFirst({
     where: { id: params.id, user_email: email },
@@ -19,11 +24,12 @@ export default async function OrderDetail({ params }: { params: { id: string } }
   const subtotal = (unit * qty) / 100;
   const discount = Number(order.discount_paise) / 100;
   const total = Number(order.total_paise) / 100;
+  const created = new Date(order.created_at).toLocaleString();
 
   return (
     <div>
       <h1>Order #{order.order_number}</h1>
-      <p>Date: {order.created_at.toISOString()}</p>
+      <p>Date: {created}</p>
       <p>Status: {order.payment_status}</p>
 
       <hr />
@@ -41,10 +47,13 @@ export default async function OrderDetail({ params }: { params: { id: string } }
           <h3>Shipping</h3>
           <address style={{ whiteSpace: "pre-line" }}>
             {order.customer_name}
-{order.address_line1}{order.address_line2 ? `
-${order.address_line2}` : ""}
-{order.city}, {order.state} {order.pincode}
-{order.phone}
+            {"\n"}
+            {order.address_line1}
+            {order.address_line2 ? `\n${order.address_line2}` : ""}
+            {"\n"}
+            {order.city}, {order.state} {order.pincode}
+            {"\n"}
+            {order.phone}
           </address>
         </>
       )}
