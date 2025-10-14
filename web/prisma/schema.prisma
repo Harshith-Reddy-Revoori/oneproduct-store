@@ -112,20 +112,6 @@ model orders {
    - Some columns are quoted (mapped below)
    ========================= */
 
-model User {
-  id            String   @id @default(cuid())
-  name          String?
-  email         String?  @unique
-  emailVerified DateTime? @map("emailVerified")
-  image         String?
-  role          String   @default("customer")
-
-  accounts Account[]
-  sessions Session[]
-
-  @@map("User")
-}
-
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -164,4 +150,20 @@ model VerificationToken {
 
   @@id([identifier, token])
   @@map("VerificationToken")
+}
+
+
+model User {
+  id            String   @id @default(cuid())
+  name          String?
+  email         String?  @unique
+  emailVerified DateTime? @map("emailVerified")
+  image         String?
+  role          String   @default("customer")
+  passwordHash  String?  @map("password_hash")
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("User")
 }

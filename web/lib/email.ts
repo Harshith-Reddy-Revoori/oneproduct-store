@@ -32,7 +32,7 @@ type SendEmailInput = {
     const { Resend } = await import("resend");
     const resend = new Resend(apiKey);
   
-    const fromAddr = from || process.env.RESEND_FROM || "no-reply@sugarpro.app";
+    const fromAddr = from || process.env.EMAIL_FROM || process.env.RESEND_FROM || "no-reply@oneproduct.app";
   
     // The SDK returns { data: { id } | null, error: { message } | null }
     const result: { data: { id: string } | null; error: { message: string } | null } =
