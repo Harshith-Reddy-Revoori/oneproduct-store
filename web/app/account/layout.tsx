@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import SignOutButton from "@/components/SignOutButton";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -15,9 +16,11 @@ export default async function AccountLayout({ children }: { children: React.Reac
         <strong>My account</strong>
         <Link href="/account">Overview</Link>
         <Link href="/account/orders">Orders</Link>
-        {/* add Profile, Addresses, etc. later */}
+        <Link href="/account/profile">Profile</Link>
+        <SignOutButton />
       </aside>
       <main>{children}</main>
     </div>
-  );
+  );  
 }
+
