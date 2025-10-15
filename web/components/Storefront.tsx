@@ -8,11 +8,15 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import type { StoreProduct } from "@/types/product";
 import styles from "./Storefront.module.css";
+//import SignOutButton from "@/components/SignOutButton";
 
-/** Local images for the alternating media section */
-import trustedImg from "@/app/assets/images/trusted.png";
+/** Local images (updated to use JIVINCHU product image) */
+
+import patternImg from "@/app/assets/images/monk_pattern.png";
+import productImg from "@/app/assets/images/monk_sweetener.jpeg";
 import scienceImg from "@/app/assets/images/scientifically_proven.png";
 import deliveryImg from "@/app/assets/images/easy_delivery.png";
+import trustImg from "@/app/assets/images/trusted.png";
 
 type SizeRow = StoreProduct["product_sizes"][number];
 
@@ -132,10 +136,10 @@ const noList: Array<{ t: string; d: string }> = [
 ];
 
 const testimonials = [
-  { quote: "SugarPro changed my coffee routine forever!", name: "Anna S.", role: "Coffee Enthusiast" },
+  { quote: "This is my new favorite monk fruit blend!", name: "Anna S.", role: "Coffee Enthusiast" },
   { quote: "No aftertaste—finally a sweetener I trust.", name: "Brian L.", role: "Dietitian" },
   { quote: "So easy to order and it arrived fast.", name: "Jillian C.", role: "Home Baker" },
-  { quote: "My new go-to for every recipe.", name: "David M.", role: "Fitness Coach" },
+  { quote: "Perfect 1:1 sugar replacement.", name: "David M.", role: "Fitness Coach" },
 ];
 
 export default function Storefront({ product }: { product: StoreProduct | null }) {
@@ -192,6 +196,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
 
   return (
     <div className={`${styles.page} ${styles.theme}`}>
+      <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternImg.src})`, backgroundRepeat: 'repeat', backgroundSize: '220px', opacity: '0.3', pointerEvents: 'none' }} />
       {/* Background blobs */}
       <div aria-hidden className={styles.bgWrap}>
         <div className={styles.blobOne} />
@@ -199,17 +204,19 @@ export default function Storefront({ product }: { product: StoreProduct | null }
       </div>
 
       {/* Header */}
-      <header className={styles.navbar}>
+      <header className={styles.navbar}  style={{background: 'linear-gradient(80deg, #FFFAFA 30%, #FFF3DD 40%, #FFE7C8 100%)'}}>
+      
         <nav className={`${styles.navbarInner} ${styles.container}`}>
-          <Link href="/" aria-label="SugarPro Home" className={styles.brand}>
-            SugarPro
+          <Link href="/" aria-label="JIVINCHU Home" className={styles.brand} style={{color:"#c89f16", fontSize:"22px"}}>
+            JIVINCHU
           </Link>
 
           <div className={styles.navLinks} aria-label="Primary">
             <button onClick={() => scrollTo("benefits")}>Benefits</button>
-            <button onClick={() => scrollTo("science")}>Science</button>
+            {/* <button onClick={() => scrollTo("science")}>Science</button> */}
             <button onClick={() => scrollTo("buy")}>Buy</button>
             <Link href="/account">Account</Link>
+            {/* <SignOutButton className={styles.linkLikeButton} /> */}
           </div>
 
           <button
@@ -236,12 +243,13 @@ export default function Storefront({ product }: { product: StoreProduct | null }
       </header>
 
       {/* HERO */}
-      <section className={`${styles.section} ${styles.container} ${styles.hero}`}>
-        <motion.div
+      <section className={`${styles.section} ${styles.container} ${styles.hero}`} style={{ position: "relative" }}>
+
+          <motion.div
           initial={prefersReduced ? undefined : { opacity: 0, y: 18, filter: "blur(6px)" }}
           animate={prefersReduced ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className={styles.heroContent}
+          className={styles.heroContent} style={{ position: 'relative', zIndex: 1 }}
         >
           <motion.h1
             initial={prefersReduced ? undefined : { opacity: 0, y: 14 }}
@@ -250,7 +258,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
             className={styles.heroTitle}
             whileHover={prefersReduced ? undefined : { scale: 1.01 }}
           >
-            SugarPro<span className={styles.dot}>.</span>
+            JIVINCHU<span className={styles.dot}>.</span>
           </motion.h1>
 
           <motion.h2
@@ -259,7 +267,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
             transition={{ delay: 0.12, duration: 0.45 }}
             className={styles.heroKicker}
           >
-            Total solution for sweetness.
+            Monk Fruit Sweetener - total solution for sweetness.
           </motion.h2>
 
           <motion.p
@@ -268,7 +276,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
             transition={{ delay: 0.2, duration: 0.45 }}
             className={styles.heroLead}
           >
-            A modern way to enjoy sweet flavor—without compromising how you feel.
+            A modern way to enjoy sweet flavor - Monk Fruit + Allulose blend for sugar-like taste without the guilt.
           </motion.p>
 
           <motion.div
@@ -300,24 +308,25 @@ export default function Storefront({ product }: { product: StoreProduct | null }
               {hasVariedPrices ? <>From {formatPaise(minPricePaise)}</> : <>{formatPaise(minPricePaise)}</>}
             </div>
           </motion.div>
+
         </motion.div>
       </section>
 
       {/* ALTERNATING MEDIA SECTION (3 rows) */}
       <section className={`${styles.section} ${styles.mediaSection}`}>
         <div className={styles.container}>
-          {/* Row 1: text left, image right */}
+          {/* Row 1: text left, product image right (updated) */}
           <div className={styles.mediaRow}>
             <div className={styles.mediaText}>
               <h3 className={styles.mediaTitle}>Trusted by thousands.</h3>
               <p className={styles.mediaDesc}>
-                SugarPro offers a new way to enjoy sweet flavors without compromising health or taste.
+                JIVINCHU Monk Fruit Sweetener offers a new way to enjoy sweet flavors without compromising health or taste.
               </p>
             </div>
             <div className={styles.mediaImage}>
               <Image
-                src={trustedImg}
-                alt="Customers trust SugarPro"
+                src={trustImg}
+                alt="JIVINCHU Monk Fruit Sweetener packaging"
                 width={1200}
                 height={900}
                 className={styles.mediaImgEl}
@@ -369,7 +378,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
       {/* Benefits */}
       <section id="benefits" className={styles.section}>
         <div className={styles.container}>
-          <h2 className={styles.sectionTitle}>Sweet. Smart. SugarPro.</h2>
+          <h2 className={styles.sectionTitle}>Sweet. Smart. JIVINCHU.</h2>
           <p className={styles.sectionLead}>
             Enjoy the sugar-like taste with zero guilt and a feel-good routine.
           </p>
@@ -428,13 +437,25 @@ export default function Storefront({ product }: { product: StoreProduct | null }
           </div>
         </div>
       </section>
-
+      
       {/* BUY */}
       <section id="buy" className={styles.section}>
         <div className={styles.container}>
+          
           <div className={styles.buyGrid}>
+            {/* Product hero image */}
+  <div className={styles.mediaImage}>
+            <Image
+              src={productImg}
+              alt="JIVINCHU Monk Fruit Sweetener retail pouch"
+              width={1200}
+              height={1200}
+              className={styles.mediaImgEl}
+              priority
+            />
+          </div>
             <div>
-              <h2 className={styles.sectionTitle}>Buy SugarPro</h2>
+              <h2 className={styles.sectionTitle}>Buy JIVINCHU Monk Fruit Sweetener</h2>
               <ul className={styles.buyBullets}>
                 <li>• Zero Calories, Zero Sugar Spike</li>
                 <li>• Tastes Like Sugar — No Aftertaste</li>
@@ -444,17 +465,14 @@ export default function Storefront({ product }: { product: StoreProduct | null }
               {product?.description ? (
                 <p className={styles.buyDesc}>{product.description}</p>
               ) : (
-                <p className={styles.buyDesc}>Add a short product description here.</p>
+                <p className={styles.buyDesc}>Monk Fruit + Allulose blend. 1:1 sugar replacement for tea, coffee, baking & Indian sweets.</p>
               )}
-            </div>
-
-            {/* Purchase card */}
-            <div className={styles.buyCard}>
+              <div className={styles.buyCard}>
               <div className={styles.buyHeader}>
-                <div className={styles.buyTitle}>{product?.name ?? "Your Product"}</div>
+                <div className={styles.buyTitle}>{product?.name ?? "JIVINCHU's Monk Fruit Sweetener"}</div>
                 <div className={styles.buyPrice}>{formatPaise(unitPaise)}</div>
               </div>
-
+              
               {/* Sizes */}
               <div className={styles.formField}>
                 <label>Choose size</label>
@@ -521,10 +539,16 @@ export default function Storefront({ product }: { product: StoreProduct | null }
             </div>
           </div>
         </div>
+            </div>
+
+
+            {/* Purchase card */}
+            
       </section>
 
       {/* FOOTER — redesigned */}
-      <footer className={styles.siteFooter}>
+      <footer className={styles.siteFooter} style={{background: 'linear-gradient(40deg, #FFFAFA 0%, #FFF3DD 40%, #FFE7C8 100%)'}}>
+        
         <div className={`${styles.container} ${styles.footerWrap}`}>
           <div className={styles.footerTop}>
             <div className={styles.brandCell}>
@@ -536,7 +560,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
                   <polygon points="40,22 48,8 56,22" fill="#d4d4d8" />
                 </svg>
               </div>
-              <div className={styles.tagline}>Sweet. Smart. SugarPro.</div>
+              <div className={styles.tagline}>Sweet. Smart. JIVINCHU.</div>
             </div>
 
             <div className={styles.footerCols}>
@@ -562,7 +586,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
           <div className={styles.footerDivider} />
 
           <div className={styles.footerBottom}>
-            <div className={styles.copy}>© {new Date().getFullYear()} SugarPro</div>
+            <div className={styles.copy}>© {new Date().getFullYear()} JIVINCHU</div>
             <nav className={styles.legalNav}>
               <Link className={styles.footerLink} href="/privacy">Privacy</Link>
               <Link className={styles.footerLink} href="/returns">Returns</Link>
