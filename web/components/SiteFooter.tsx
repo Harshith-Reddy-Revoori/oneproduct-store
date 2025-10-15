@@ -21,16 +21,16 @@ export default function SiteFooter() {
             <div>
               <div className={styles.footerHead}>Product</div>
               <ul className={styles.footerList}>
-                <li><a className={styles.footerLink} href="/#benefits">Benefits</a></li>
-                <li><a className={styles.footerLink} href="/#buy">Buy</a></li>
+                <li><Link className={styles.footerLink} href="/#benefits">Benefits</Link></li>
+                <li><Link className={styles.footerLink} href="/#buy">Buy</Link></li>
                 <li><Link className={styles.footerLink} href="/faq">FAQ</Link></li>
               </ul>
             </div>
             <div>
               <div className={styles.footerHead}>Learn</div>
               <ul className={styles.footerList}>
-                <li><a className={styles.footerLink} href="/#science">Science</a></li>
-                <li><a className={styles.footerLink} href="/#reviews">Reviews</a></li>
+                <li><Link className={styles.footerLink} href="/#science">Science</Link></li>
+                <li><Link className={styles.footerLink} href="/#reviews">Reviews</Link></li>
                 <li><Link className={styles.footerLink} href="/how-it-works">How It Works</Link></li>
               </ul>
             </div>
