@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { formatPaise } from "@/lib/money";
 import type { Prisma } from "@prisma/client";
+import styles from "@/components/Checkout.module.css";
+
 
 /* ---------- Types ---------- */
 
@@ -170,72 +172,72 @@ export default async function CheckoutPage({
   const totals = computeTotals(product, chosen, qty, coupon);
 
   return (
-    <main className="mx-auto max-w-4xl p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-bold">Checkout</h1>
-        <Link href="/" className="underline">← Keep shopping</Link>
-      </div>
-
-      <section className="rounded-2xl border p-5 bg-white/80 space-y-3">
-        <div className="flex items-baseline justify-between">
-          <div className="font-semibold">{product.name}</div>
-          <div className="font-bold">{formatPaise(totals.unit_paise)} <span className="text-sm text-gray-500">per unit</span></div>
+      <main className={`${styles.checkoutTheme} ${styles.container}`}>
+        <div className={styles.topRow}>
+          <h1 className={styles.title}>Checkout</h1>
+          <Link href="/" className={styles.backLink}>← Keep shopping</Link>
         </div>
-
-        <div className="text-sm text-gray-700">Size: <b>{chosen.label}</b></div>
-        <div className="text-sm text-gray-700">Quantity: <b>{qty}</b> (Stock left: {chosen.stock})</div>
-
-        {coupon ? (
-          <div className="text-sm">
-            Coupon: <b>{coupon.code}</b> — {asKind(coupon.kind) === "PERCENT" ? `${Number(coupon.value)}%` : `${formatPaise(Number(coupon.value))}`} applied
+    
+        <section className={styles.card}>
+          <div className={styles.productHead}>
+            <div className={styles.productName}>{product.name}</div>
+            <div className={styles.unitPrice}>
+              {formatPaise(totals.unit_paise)} <span className={styles.perUnit}>per unit</span>
+            </div>
           </div>
-        ) : (
-          <div className="text-sm text-gray-500">No coupon applied</div>
-        )}
+    
+          <div className={styles.meta}>Size: <strong>{chosen.label}</strong></div>
+          <div className={styles.meta}>Quantity: <strong>{qty}</strong> (Stock left: {chosen.stock})</div>
+    
+          {coupon ? (
+            <div className={styles.meta}>
+              Coupon: <strong>{coupon.code}</strong> — {asKind(coupon.kind) === "PERCENT"
+                ? `${Number(coupon.value)}%`
+                : `${formatPaise(Number(coupon.value))}`} applied
+            </div>
+          ) : (
+            <div className={styles.note}>No coupon applied</div>
+          )}
+    
+          <hr className={styles.rule} />
+    
+          <div className={styles.row}>
+            <span className={styles.rowLabel}>Subtotal</span>
+            <span className={styles.rowValue}>{formatPaise(totals.subtotal_paise)}</span>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.rowLabel}>Discount</span>
+            <span className={styles.rowValue}>−{formatPaise(totals.discount_paise)}</span>
+          </div>
+          <div className={`${styles.row} ${styles.totalRow}`}>
+            <span className={styles.rowLabel}>Total</span>
+            <span className={styles.rowValue}>{formatPaise(totals.total_paise)}</span>
+          </div>
+        </section>
+    
+        <section className={styles.card}>
+          <h2 className={styles.productName}>Shipping details</h2>
+          <p className={styles.note}>Payment flow will be added later. Button remains disabled.</p>
+    
+          <div className={styles.formGrid}>
+  <input className={styles.input} name="fullName" placeholder="Full name" autoComplete="name" />
+  <input className={styles.input} name="email" placeholder="Email" autoComplete="email" />
+  <input className={styles.input} name="phone" placeholder="Phone" autoComplete="tel" />
+  <input className={styles.input} name="pincode" placeholder="Pincode" autoComplete="postal-code" />
+  <input className={`${styles.input} ${styles.span2}`} name="addr1" placeholder="Address line 1" autoComplete="address-line1" />
+  <input className={`${styles.input} ${styles.span2}`} name="addr2" placeholder="Address line 2 (optional)" autoComplete="address-line2" />
+  <input className={styles.input} name="city" placeholder="City" autoComplete="address-level2" />
+  <input className={styles.input} name="state" placeholder="State" autoComplete="address-level1" />
+</div>
 
-        <hr className="my-2" />
-
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-700">Subtotal</span>
-          <span className="font-medium">{formatPaise(totals.subtotal_paise)}</span>
+        </section>
+    
+        <div className={styles.ctaRow}>
+          <button disabled className={styles.primaryBtn} title="Payment flow to be added later">
+            Continue to payment
+          </button>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-700">Discount</span>
-          <span className="font-medium">−{formatPaise(totals.discount_paise)}</span>
-        </div>
-        <div className="flex items-center justify-between text-lg">
-          <span className="font-semibold">Total</span>
-          <span className="font-bold">{formatPaise(totals.total_paise)}</span>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border p-5 bg-white/80 space-y-3">
-        <h2 className="text-xl font-semibold">Shipping details</h2>
-        <p className="text-sm text-gray-600">
-          Payment flow will be added later. Button remains disabled.
-        </p>
-
-        <div className="grid gap-3 md:grid-cols-2">
-          <input className="border rounded-lg p-3" placeholder="Full name" disabled />
-          <input className="border rounded-lg p-3" placeholder="Email" disabled />
-          <input className="border rounded-lg p-3" placeholder="Phone" disabled />
-          <input className="border rounded-lg p-3" placeholder="Pincode" disabled />
-          <input className="border rounded-lg p-3 md:col-span-2" placeholder="Address line 1" disabled />
-          <input className="border rounded-lg p-3 md:col-span-2" placeholder="Address line 2 (optional)" disabled />
-          <input className="border rounded-lg p-3" placeholder="City" disabled />
-          <input className="border rounded-lg p-3" placeholder="State" disabled />
-        </div>
-      </section>
-
-      <div className="flex items-center justify-end gap-3">
-        <button
-          disabled
-          className="rounded-xl border px-5 py-3 font-semibold opacity-60 cursor-not-allowed"
-          title="Payment flow to be added later"
-        >
-          Continue to payment
-        </button>
-      </div>
-    </main>
-  );
+      </main>
+    );
+    
 }

@@ -196,7 +196,6 @@ export default function Storefront({ product }: { product: StoreProduct | null }
 
   return (
     <div className={`${styles.page} ${styles.theme}`}>
-      {/* <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternImg.src})`, backgroundRepeat: 'repeat', backgroundSize: '220px', opacity: '0.3', pointerEvents: 'none' }} /> */}
       {/* Background blobs */}
       <div aria-hidden className={styles.bgWrap}>
         <div className={styles.blobOne} />

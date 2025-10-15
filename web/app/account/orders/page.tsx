@@ -3,15 +3,12 @@ import { authOptions } from "@/auth";
 import { prisma } from "../../../lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import styles from "@/components/Account.module.css";
 
 export default async function OrdersPage() {
   const session = await getServerSession(authOptions);
   const email = session?.user?.email;
-
-  // Guard instead of using non-null assertions
-  if (!email) {
-    redirect("/login?callbackUrl=/account/orders");
-  }
+  if (!email) redirect("/login?callbackUrl=/account/orders");
 
   const orders = await prisma.orders.findMany({
     where: { user_email: email },
@@ -26,29 +23,36 @@ export default async function OrdersPage() {
   });
 
   return (
-    <div>
-      <h1>Your orders</h1>
+    <div className={styles.pageWrap}>
+      <h1 className={styles.pageTitle}>Your orders</h1>
+
       {orders.length === 0 ? (
-        <p>No orders yet.</p>
+        <p className={styles.muted}>No orders yet.</p>
       ) : (
-        <ul style={{ display: "grid", gap: 12, padding: 0, listStyle: "none" }}>
+        <ul className={styles.orderList}>
           {orders.map((o) => {
             const total = Number(o.total_paise) / 100;
             const date = new Date(o.created_at).toLocaleDateString();
+            const statusKey = (o.payment_status || "").toLowerCase().replace(/\s+/g, "-");
             return (
-              <li key={o.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <div>
+              <li key={o.id} className={styles.orderCard}>
+                <div className={styles.orderHead}>
+                  <div className={styles.orderMeta}>
                     <div>Order <strong>#{o.order_number}</strong></div>
-                    <div style={{ color: "#666" }}>{date}</div>
+                    <div className={styles.muted}>{date}</div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div><strong>₹{total.toFixed(2)}</strong></div>
-                    <div style={{ color: "#666" }}>{o.payment_status}</div>
+                  <div className={styles.orderPrice}>
+                    <div className={styles.total}>₹{total.toFixed(2)}</div>
+                    <div className={`${styles.status} ${styles[`is-${statusKey}`] || ""}`}>
+                      {o.payment_status}
+                    </div>
                   </div>
                 </div>
-                <div style={{ marginTop: 8 }}>
-                  <Link href={`/account/orders/${o.id}`}>View details</Link>
+
+                <div className={styles.orderActions}>
+                  <Link className={styles.sideLink} href={`/account/orders/${o.id}`}>
+                    View details
+                  </Link>
                 </div>
               </li>
             );

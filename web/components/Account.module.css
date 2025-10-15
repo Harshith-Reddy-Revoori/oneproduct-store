@@ -1,0 +1,237 @@
+/* JIVINCHU account theme — shared across /account pages */
+.accountTheme {
+    --bg: #ffffff;
+    --ink: #0b1220;
+    --ink-2: #334155;
+    --ink-3: #64748b;
+    --line: rgba(15, 23, 42, 0.12);
+    --brand-1: #ffb22473;
+    --brand-2: #d4a606;
+    --brand-3: #c89f16;
+    --radius: 16px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 16px rgba(10,20,40,0.08);
+    --shadow-lg: 0 12px 40px rgba(10,20,40,0.12);
+    --nav-h: 64px;
+  
+    color: var(--ink);
+    background: var(--bg);
+  }
+  
+  /* main grid (sidebar + content) */
+  .accountGrid {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-top: calc(20px + var(--nav-h));   /* sit below fixed header */
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 24px;
+    position: relative;
+  }
+  
+  /* soft brand glows in the background */
+  .accountGrid::before,
+  .accountGrid::after {
+    content: "";
+    position: fixed;
+    inset: -40% -20% auto -20%;
+    height: 60vh;
+    pointer-events: none;
+    filter: blur(90px);
+    opacity: .30;
+    z-index: -1;
+    background:
+      radial-gradient(60% 40% at 10% 10%, var(--brand-1), transparent 60%),
+      radial-gradient(60% 40% at 90% 15%, var(--brand-2), transparent 60%);
+  }
+  .accountGrid::after {
+    inset: auto -20% -30% -20%;
+    height: 55vh;
+    opacity: .22;
+    background:
+      radial-gradient(60% 40% at 80% 85%, var(--brand-3), transparent 60%),
+      radial-gradient(60% 40% at 20% 80%, var(--brand-1), transparent 60%);
+  }
+  
+  /* sidebar card */
+  .sidebar {
+    position: sticky;
+    top: calc(var(--nav-h) + 16px);
+    align-self: start;
+  
+    background: rgba(255,255,255,0.96);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    padding: 16px;
+    display: grid;
+    gap: 12px;
+  }
+  
+  .sideTitle {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: transparent;
+    background: linear-gradient(90deg, var(--brand-3), var(--brand-2));
+    -webkit-background-clip: text;
+            background-clip: text;
+  }
+  
+  .sideNav {
+    display: grid;
+    gap: 8px;
+  }
+  
+  /* pill links in the sidebar */
+  .sideLink {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  
+    padding: 10px 12px;
+    border-radius: 9999px;
+    border: 1px solid rgba(200,159,22,.25);
+    background: linear-gradient(180deg, #fff7e6, #ffe7c8);
+    color: var(--ink);
+    box-shadow: var(--shadow-sm);
+    transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .sideLink:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(200,159,22,.45);
+    background: linear-gradient(180deg, #fff3dd, #ffe0b0);
+  }
+  
+  /* sign-out button styling to match pills */
+  .signOut {
+    margin-top: 4px;
+    width: 100%;
+    border: 0;
+    border-radius: 9999px;
+    padding: 10px 12px;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--brand-2), var(--brand-1));
+    color: #1f2937;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .2s ease;
+  }
+  .signOut:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  
+  /* main area */
+  .main {
+    min-width: 0; /* prevent overflow on long content */
+  }
+  
+  /* page wrappers/titles */
+  .pageWrap { display: grid; gap: 10px; }
+  .pageTitle {
+    margin: 0 0 4px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-size: clamp(22px, 2.8vw, 32px);
+  }
+  .muted { color: var(--ink-3); }
+  
+  /* cards / lists */
+  .orderList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  
+  .orderCard {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .18s ease, transform .12s ease;
+  }
+  .orderCard:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .orderHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .orderMeta { display: grid; gap: 2px; }
+  .orderPrice { text-align: right; display: grid; gap: 4px; }
+  .total { font-weight: 800; }
+  
+  /* status pills */
+  .status {
+    justify-self: end;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+  }
+  .is-paid, .is-succeeded, .is-success {
+    color: #166534;
+    background: rgba(34,197,94,0.12);
+    border-color: rgba(34,197,94,0.35);
+  }
+  .is-processing, .is-pending {
+    color: #7c2d12;
+    background: rgba(251,191,36,0.15);
+    border-color: rgba(251,191,36,0.45);
+  }
+  .is-failed, .is-cancelled, .is-canceled, .is-refunded {
+    color: #991b1b;
+    background: rgba(239,68,68,0.12);
+    border-color: rgba(239,68,68,0.35);
+  }
+  
+  .orderActions { margin-top: 10px; }
+  
+  /* detail page */
+  .detailCard {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    display: grid;
+    gap: 12px;
+  }
+  .sectionTitle {
+    margin: 6px 0 2px;
+    font-weight: 700;
+  }
+  
+  /* address block */
+  .address {
+    white-space: pre-line;
+    font-style: normal;
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    padding: 10px;
+  }
+  
+  /* responsive */
+  @media (max-width: 900px) {
+    .accountGrid {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      position: relative;
+      top: 0;
+    }
+    .orderHead { flex-direction: column; gap: 6px; }
+    .orderPrice { text-align: left; }
+  }
+  

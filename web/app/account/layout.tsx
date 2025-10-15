@@ -3,6 +3,7 @@ import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
+import styles from "@/components/Account.module.css";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -11,16 +12,17 @@ export default async function AccountLayout({ children }: { children: React.Reac
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 24, padding: 24 }}>
-      <aside style={{ display: "grid", gap: 8 }}>
-        <strong>My account</strong>
-        <Link href="/account">Overview</Link>
-        <Link href="/account/orders">Orders</Link>
-        <Link href="/account/profile">Profile</Link>
-        <SignOutButton />
+    <div className={`${styles.accountTheme} ${styles.accountGrid}`}>
+      <aside className={styles.sidebar}>
+        <div className={styles.sideTitle}>My account</div>
+        <nav className={styles.sideNav}>
+          <Link className={styles.sideLink} href="/account">Overview</Link>
+          <Link className={styles.sideLink} href="/account/orders">Orders</Link>
+          <Link className={styles.sideLink} href="/account/profile">Profile</Link>
+        </nav>
+        <SignOutButton className={styles.signOut} />
       </aside>
-      <main>{children}</main>
+      <main className={styles.main}>{children}</main>
     </div>
-  );  
+  );
 }
-

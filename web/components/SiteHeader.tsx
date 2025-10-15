@@ -52,7 +52,6 @@ export default function SiteHeader() {
           <div id="mobile-menu" className={styles.mobileMenu}>
             <div className={styles.container}>
               <button onClick={() => jump("benefits")}>Benefits</button>
-              <button onClick={() => jump("science")}>Science</button>
               <button onClick={() => jump("buy")}>Buy</button>
               <Link href="/account">Account</Link>
             </div>
@@ -61,7 +60,7 @@ export default function SiteHeader() {
       </header>
 
       {/* spacer so content doesn't sit under the fixed nav */}
-      <div aria-hidden className={styles.navbarShim} />
+      {/* <div aria-hidden className={styles.navbarShim} /> */}
     </>
   );
 }
