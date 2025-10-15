@@ -8,14 +8,15 @@
   --ink-2: #334155;
   --ink-3: #64748b;
   --line: rgba(15, 23, 42, 0.12);
-  --brand-1: #ffb22473;   
-  --brand-2: #d4a606;   
-  --brand-3: #c89f16;   
+  --brand-1: #ffb22473;   /* peachy glow */
+  --brand-2: #d4a606;     /* gold */
+  --brand-3: #c89f16;     /* deep gold */
   --radius: 16px;
   --radius-lg: 20px;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 16px rgba(10, 20, 40, 0.08);
   --shadow-lg: 0 12px 40px rgba(10, 20, 40, 0.12);
+  --nav-h: 64px;          /* shared header height */
 
   background: var(--bg);
   color: var(--ink);
@@ -33,19 +34,24 @@
 .blobOne { left: -120px; top: -120px; background: radial-gradient(600px 400px at 40% 40%, var(--brand-1), transparent 60%); }
 .blobTwo { right: -160px; top: 180px; background: radial-gradient(600px 400px at 60% 60%, var(--brand-2), transparent 60%); }
 
-/* Nav */
+/* ===================== NAV (fixed across pages) ===================== */
 .navbar {
-  position: sticky; top: 0;
-  background: rgba(255,255,255,0.7);
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.7); /* page sets gradient inline */
   backdrop-filter: saturate(140%) blur(10px);
   border-bottom: 1.5px solid var(--line);
-  z-index: 20;
 }
-.navbarInner { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.navbarInner { height: var(--nav-h, 64px); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .brand { font-weight: 700; letter-spacing: -0.02em; text-decoration: none; color: inherit; }
 .navLinks { display: none; gap: 16px; align-items: center; }
 .navLinks a, .navLinks button { font: inherit; background: none; border: 0; color: var(--ink); padding: 6px 10px; cursor: pointer; }
+
+/* default mobile toggle base (desktop hides it) */
 .mobileToggle { background: none; border: 1px solid var(--line); padding: 6px 10px; border-radius: 10px; }
+
+/* dropdown container */
 .mobileMenu { border-top: 1px solid var(--line); background: rgba(255,255,255,0.85); }
 .mobileMenu .container { display: grid; gap: 10px; padding: 12px 16px; }
 
@@ -54,15 +60,31 @@
   .mobileToggle { display: none; }
 }
 
-/* Hero */
+/* spacer so content isn't hidden under the fixed nav (render a div.navbarShim after header) */
+.navbarShim { height: var(--nav-h, 64px); }
+
+/* make the dropdown sit below the fixed bar on mobile */
+@media (max-width: 899px) {
+  .mobileMenu {
+    position: fixed;
+    top: var(--nav-h, 64px);
+    left: 0; right: 0;
+    z-index: 90;
+  }
+}
+
+/* ===================== HERO ===================== */
 .hero { padding-top: 88px; padding-bottom: 40px; text-align: center; }
 .heroContent { display: grid; gap: 16px; justify-items: center; }
 
-.heroTitle { font-size: clamp(48px, 8vw, 88px); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; color: transparent;
-  background: linear-gradient(90deg, var(--brand-3)0%, var(--brand-2) 50%, var(--brand-1)100%);
+.heroTitle {
+  font-size: clamp(48px, 8vw, 88px);
+  font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; color: transparent;
+  background: linear-gradient(90deg, var(--brand-3) 0%, var(--brand-2) 50%, var(--brand-1) 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text;
-  animation: dot-pan 10s linear infinite;}
+  animation: dot-pan 10s linear infinite;
+}
 .dot {
   color: transparent;
   background: linear-gradient(90deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
@@ -72,8 +94,8 @@
 }
 @keyframes dot-pan { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
-.heroKicker { font-size: clamp(18px, 2.4vw, 28px); font-weight: 600; opacity: 1; padding: 12px; background: linear-gradient(40deg, var(--brand-1) 30%, #FFE7C8 60%, #FFF3DD);}
-.heroLead { color: var(--ink-2); max-width: 760px; }
+.heroKicker { font-size: clamp(18px, 2.4vw, 28px); font-weight: 600; opacity: 1; padding: 12px; background: linear-gradient(40deg, var(--brand-1) 30%, #FFE7C8 60%, #FFF3DD); margin-left: 16px; margin-right: 16px; }
+.heroLead { color: var(--ink-2); max-width: 760px; margin-left: 16px; margin-right: 16px;}
 .heroBadges { display: flex; gap: 8px; justify-content: center; }
 .badge { font-size: 13px; padding: 6px 10px; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2); border-radius: 999px; }
 
@@ -87,7 +109,7 @@
 .primaryBtn[aria-disabled="true"], .primaryBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 .price { font-weight: 700; }
 
-/* ICON GRID */
+/* ===================== ICON GRID ===================== */
 .iconGridSection { padding-top: 24px; padding-bottom: 24px; }
 .iconGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px 32px; justify-items: center; align-items: start; }
 .iconItem { text-align: center; }
@@ -96,7 +118,7 @@
 .iconLabel { font-weight: 700; letter-spacing: -0.01em; font-size: clamp(18px, 2.6vw, 28px); color: var(--ink); }
 @media (min-width: 980px) { .iconGrid { grid-template-columns: repeat(4, 1fr); } }
 
-/* ALTERNATING MEDIA SECTION */
+/* ===================== ALTERNATING MEDIA ===================== */
 .mediaSection { padding-top: 48px; padding-bottom: 24px; }
 .mediaRow {
   display: grid;
@@ -119,25 +141,30 @@
 }
 .mediaImgEl { width: 100%; height: auto; display: block; }
 
-
 @media (min-width: 960px) {
   .mediaRow { grid-template-columns: 0.9fr 1.1fr; gap: 40px; }
   .reverse { grid-template-columns: 1.1fr 0.9fr; }
 }
 
-/* Sections */
+/* --- Mobile: force each media row to be image → text (no odd zigzag) --- */
+@media (max-width: 959px) {
+  .mediaRow { grid-template-columns: 1fr; }
+  .mediaRow .mediaImage { order: 1; }
+  .mediaRow .mediaText  { order: 2; }
+}
+
+/* ===================== Sections / Benefits ===================== */
 .sectionTitle { font-size: clamp(28px, 3.2vw, 40px); font-weight: 800; letter-spacing: -0.02em; }
 .sectionTitleSm { font-size: clamp(22px, 2.4vw, 28px); font-weight: 700; }
 .sectionLead { color: var(--ink-2); margin-top: 8px; }
 
-/* Benefits grid */
 .benefitGrid { display: grid; gap: 12px; margin-top: 18px; grid-template-columns: 1fr; }
 .benefitCard { background: white; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm); }
 .benefitTitle { font-weight: 700; }
 .benefitDesc { color: var(--ink-2); margin-top: 6px; }
 @media (min-width: 900px) { .benefitGrid { grid-template-columns: repeat(2, 1fr); } }
 
-/* Science box */
+/* ===================== Science box ===================== */
 .scienceBox {
   border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
   padding: 18px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
@@ -146,7 +173,7 @@
 .scienceText { color: var(--ink-2); margin-top: 8px; }
 .scienceSmall { color: var(--ink-3); font-size: 12px; margin-top: 8px; }
 
-/* Testimonials */
+/* ===================== Testimonials ===================== */
 .testimonials { }
 .tHeadingWrap { text-align: center; margin-bottom: 28px; }
 .tHeading { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
@@ -166,19 +193,17 @@
   transition: transform .2s ease, box-shadow .2s ease;
 }
 .tCard:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.08); }
-
 .tQuote { color: #6b7280; font-size: 18px; line-height: 1.5; margin: 0 0 18px 0; }
 .tMeta { display: flex; align-items: baseline; gap: 4px; }
 .tName { font-weight: 800; color: var(--ink); }
 .tRole { color: #9ca3af; }
 .tSep { color: #cbd5e1; }
 
-/* Buy grid */
+/* ===================== Buy section ===================== */
 .buyGrid { display: grid; gap: 24px; grid-template-columns: 1fr; align-items: start; }
 .buyBullets { display: grid; gap: 6px; font-size: 14px; color: var(--ink-2); margin-top: 8px; padding-left: 0; list-style: none; }
 .buyDesc { margin-top: 12px; color: var(--ink-2); }
 
-/* Purchase card */
 .buyCard {
   border: 1px solid var(--line); border-radius: var(--radius-lg);
   background: white; padding: 18px; box-shadow: var(--shadow-lg);
@@ -203,14 +228,13 @@
 .inputSmall { max-width: 120px; }
 
 .muted { color: var(--ink-3); font-size: 14px; }
-
 .buyFine { margin-top: 8px; font-size: 12px; color: var(--ink-3); }
 
 @media (min-width: 980px) {
   .buyGrid { grid-template-columns: 1.1fr 0.9fr; }
 }
 
-/* --------- FOOTER --------- */
+/* ===================== FOOTER ===================== */
 .siteFooter { padding: 48px 0 28px; border: 0px solid var(--line); background: #fff; }
 .footerWrap { display: grid; gap: 24px; }
 
@@ -248,3 +272,113 @@
 }
 .copy { color: #6b7280; }
 .legalNav { display: flex; gap: 14px; }
+
+/* ===================== Mobile menu — JIVINCHU card style ===================== */
+.mobileMenu {
+  position: relative;
+  border-top: 0;
+  background: transparent;
+  backdrop-filter: saturate(140%) blur(10px);
+}
+.mobileMenu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 60% at 0% 0%, var(--brand-1) 10%, transparent 60%),
+    radial-gradient(120% 60% at 100% 0%, var(--brand-2) 10%, transparent 60%);
+  filter: blur(70px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Turn the menu area into a soft card */
+.mobileMenu > .container {
+  margin: 12px 16px 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: grid;
+  gap: 10px;
+
+  /* keep the pills inside the rounded card */
+  overflow: hidden;
+  align-items: stretch;
+}
+
+/* Make both <button> and <a> look like themed pills */
+.mobileMenu button,
+.mobileMenu a {
+  appearance: none;
+  width: 100%;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+
+  border: 1px solid rgba(200, 159, 22, 0.25);
+  background: linear-gradient(180deg, #fff7e6, #ffe7c8);
+  color: var(--ink);
+
+  box-shadow: var(--shadow-sm);
+  transition: transform .12s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+
+  /* normalize sizing to avoid overflow */
+  max-width: 100%; box-sizing: border-box; margin: 0; white-space: nowrap;
+}
+.mobileMenu button:hover,
+.mobileMenu a:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(200, 159, 22, 0.45);
+  background: linear-gradient(180deg, #fff3dd, #ffe0b0);
+}
+.mobileMenu button:active,
+.mobileMenu a:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+.mobileMenu button:focus-visible,
+.mobileMenu a:focus-visible {
+  outline: 2px solid rgba(200, 159, 22, 0.55);
+  outline-offset: 2px;
+}
+.mobileMenu .container > * { min-width: 0; }
+
+/* ===================== Mobile toggle pill (pure local selectors) ===================== */
+@media (max-width: 899px) {
+  .mobileToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    min-height: 36px;
+
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+
+    background: linear-gradient(90deg, #ebd0a0, #f0ca92);
+    color: #1f2937;
+    box-shadow: var(--shadow-sm);
+    transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .mobileToggle:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .mobileToggle:active { transform: translateY(0); }
+  .mobileToggle:focus-visible { outline: 2px solid rgba(200,159,22,.55); outline-offset: 2px; }
+
+  /* “Close” state */
+  .mobileToggle[aria-expanded="true"] {
+    background: linear-gradient(90deg, #ebd0a0, #efc689);
+    box-shadow: 0 8px 20px rgba(200,159,22,.25);
+  }
+}

@@ -196,54 +196,31 @@ export default function Storefront({ product }: { product: StoreProduct | null }
 
   return (
     <div className={`${styles.page} ${styles.theme}`}>
-      <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternImg.src})`, backgroundRepeat: 'repeat', backgroundSize: '220px', opacity: '0.3', pointerEvents: 'none' }} />
+      {/* <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternImg.src})`, backgroundRepeat: 'repeat', backgroundSize: '220px', opacity: '0.3', pointerEvents: 'none' }} /> */}
       {/* Background blobs */}
       <div aria-hidden className={styles.bgWrap}>
         <div className={styles.blobOne} />
         <div className={styles.blobTwo} />
       </div>
 
-      {/* Header */}
-      <header className={styles.navbar}  style={{background: 'linear-gradient(80deg, #FFFAFA 30%, #FFF3DD 40%, #FFE7C8 100%)'}}>
-      
-        <nav className={`${styles.navbarInner} ${styles.container}`}>
-          <Link href="/" aria-label="JIVINCHU Home" className={styles.brand} style={{color:"#c89f16", fontSize:"22px"}}>
-            JIVINCHU
-          </Link>
-
-          <div className={styles.navLinks} aria-label="Primary">
-            <button onClick={() => scrollTo("benefits")}>Benefits</button>
-            {/* <button onClick={() => scrollTo("science")}>Science</button> */}
-            <button onClick={() => scrollTo("buy")}>Buy</button>
-            <Link href="/account">Account</Link>
-            {/* <SignOutButton className={styles.linkLikeButton} /> */}
-          </div>
-
-          <button
-            className={styles.mobileToggle}
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-menu"
-            onClick={() => setMobileOpen(v => !v)}
-            title="Toggle navigation"
-          >
-            {mobileOpen ? "Close" : "Menu"}
-          </button>
-        </nav>
-
-        {mobileOpen && (
-          <div id="mobile-menu" className={styles.mobileMenu}>
-            <div className={styles.container}>
-              <button onClick={() => scrollTo("benefits")}>Benefits</button>
-              <button onClick={() => scrollTo("science")}>Science</button>
-              <button onClick={() => scrollTo("buy")}>Buy</button>
-              <Link href="/account">Account</Link>
-            </div>
-          </div>
-        )}
-      </header>
-
       {/* HERO */}
       <section className={`${styles.section} ${styles.container} ${styles.hero}`} style={{ position: "relative" }}>
+      <div
+  aria-hidden
+  style={{
+    position: "absolute",
+    top: 0,
+    left: "50%",
+    transform: "translateX(-50%)", // center the 100vw strip
+    width: "100vw",
+    height: "100%",                 // only as tall as the hero section
+    backgroundImage: `url(${patternImg.src})`,
+    backgroundRepeat: "repeat",
+    backgroundSize: "220px",
+    opacity: 0.3,
+    pointerEvents: "none",
+  }}
+/>
 
           <motion.div
           initial={prefersReduced ? undefined : { opacity: 0, y: 18, filter: "blur(6px)" }}
@@ -546,56 +523,6 @@ export default function Storefront({ product }: { product: StoreProduct | null }
             
       </section>
 
-      {/* FOOTER — redesigned */}
-      <footer className={styles.siteFooter} style={{background: 'linear-gradient(40deg, #FFFAFA 0%, #FFF3DD 40%, #FFE7C8 100%)'}}>
-        
-        <div className={`${styles.container} ${styles.footerWrap}`}>
-          <div className={styles.footerTop}>
-            <div className={styles.brandCell}>
-              <div className={styles.brandMark} aria-hidden>
-                {/* simple brand glyph: square, circle, triangle */}
-                <svg viewBox="0 0 64 24">
-                  <rect x="0" y="12" width="10" height="10" rx="2" fill="#d4d4d8" />
-                  <circle cx="22" cy="17" r="6" fill="#d4d4d8" />
-                  <polygon points="40,22 48,8 56,22" fill="#d4d4d8" />
-                </svg>
-              </div>
-              <div className={styles.tagline}>Sweet. Smart. JIVINCHU.</div>
-            </div>
-
-            <div className={styles.footerCols}>
-              <div>
-                <div className={styles.footerHead}>Product</div>
-                <ul className={styles.footerList}>
-                  <li><a className={styles.footerLink} href="#benefits">Benefits</a></li>
-                  <li><a className={styles.footerLink} href="#buy">Buy</a></li>
-                  <li><Link className={styles.footerLink} href="/faq">FAQ</Link></li>
-                </ul>
-              </div>
-              <div>
-                <div className={styles.footerHead}>Learn</div>
-                <ul className={styles.footerList}>
-                  <li><a className={styles.footerLink} href="#science">Science</a></li>
-                  <li><a className={styles.footerLink} href="#reviews">Reviews</a></li>
-                  <li><Link className={styles.footerLink} href="/how-it-works">How It Works</Link></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.footerDivider} />
-
-          <div className={styles.footerBottom}>
-            <div className={styles.copy}>© {new Date().getFullYear()} JIVINCHU</div>
-            <nav className={styles.legalNav}>
-              <Link className={styles.footerLink} href="/privacy">Privacy</Link>
-              <Link className={styles.footerLink} href="/returns">Returns</Link>
-              <Link className={styles.footerLink} href="/shipping">Shipping</Link>
-              <Link className={styles.footerLink} href="/terms">Terms</Link>
-            </nav>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
