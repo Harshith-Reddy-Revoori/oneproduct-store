@@ -516,10 +516,6 @@ export default function Storefront({ product }: { product: StoreProduct | null }
           </div>
         </div>
             </div>
-
-
-            {/* Purchase card */}
-            
       </section>
 
     </div>
