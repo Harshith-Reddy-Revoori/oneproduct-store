@@ -382,3 +382,18 @@
     box-shadow: 0 8px 20px rgba(200,159,22,.25);
   }
 }
+
+
+/* Sticky page shell (below a fixed 64px header) */
+.pageShell {
+  min-height: calc(100dvh - var(--nav-h, 64px));
+  margin-top: var(--nav-h, 64px);   /* sit below fixed header */
+  display: flex;
+  flex-direction: column;
+}
+
+/* main content grows to push footer down */
+.pageMain { flex: 1 1 auto; }
+
+/* safety: only works when inside a flex column parent (pageShell) */
+.siteFooter { margin-top: auto; }

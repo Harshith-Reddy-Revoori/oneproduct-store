@@ -18,7 +18,6 @@ export default async function AccountLayout({ children }: { children: React.Reac
         <nav className={styles.sideNav}>
           <Link className={styles.sideLink} href="/account">Overview</Link>
           <Link className={styles.sideLink} href="/account/orders">Orders</Link>
-          <Link className={styles.sideLink} href="/account/profile">Profile</Link>
         </nav>
         <SignOutButton className={styles.signOut} />
       </aside>

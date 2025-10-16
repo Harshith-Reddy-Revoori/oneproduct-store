@@ -1,7 +1,7 @@
 "use client";
 import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
-import styles from "./Login.module.css";
+import styles from "@/components/Auth.module.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

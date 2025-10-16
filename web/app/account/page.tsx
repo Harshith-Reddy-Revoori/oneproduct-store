@@ -12,7 +12,7 @@ export default async function AccountHome() {
       <h1 className={styles.pageTitle}>
         Welcome{session.user?.name ? `, ${session.user.name}` : ""}!
       </h1>
-      <p className={styles.muted}>Use the sidebar to view your orders.</p>
+      <p className={styles.muted}>Use the menu to view your orders</p>
     </div>
   );
 }
