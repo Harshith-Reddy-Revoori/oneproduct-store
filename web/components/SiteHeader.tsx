@@ -22,18 +22,16 @@ export default function SiteHeader() {
 
   return (
     <>
-      <header
-        className={styles.navbar}
-        style={{ background: "linear-gradient(80deg, #FFFAFA 30%, #FFF3DD 40%, #FFE7C8 100%)" }}
-      >
+      <header className={styles.navbar}>
         <nav className={`${styles.navbarInner} ${styles.container}`}>
-          <Link href="/" aria-label="JIVINCHU Home" className={styles.brand} style={{ color: "#c89f16", fontSize: "22px" }}>
-            JIVINCHU
+          <Link href="/" aria-label="OOKA Home" className={styles.brand} style={{ fontSize: "22px" }}>
+            OOKA
           </Link>
 
           <div className={styles.navLinks} aria-label="Primary">
-            <button onClick={() => jump("benefits")}>Benefits</button>
-            <button onClick={() => jump("buy")}>Buy</button>
+            <button type="button" onClick={() => jump("daily-favourites")}>Shop</button>
+            <button type="button" onClick={() => jump("buy")}>Buy</button>
+            <Link href="/about">About</Link>
             <Link href="/account">Account</Link>
           </div>
 
@@ -51,8 +49,9 @@ export default function SiteHeader() {
         {mobileOpen && (
           <div id="mobile-menu" className={styles.mobileMenu}>
             <div className={styles.container}>
-              <button onClick={() => jump("benefits")}>Benefits</button>
-              <button onClick={() => jump("buy")}>Buy</button>
+              <button type="button" onClick={() => jump("daily-favourites")}>Shop</button>
+              <button type="button" onClick={() => jump("buy")}>Buy</button>
+              <Link href="/about">About</Link>
               <Link href="/account">Account</Link>
             </div>
           </div>

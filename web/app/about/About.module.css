@@ -1,0 +1,83 @@
+/* OOKA About page — uses global theme variables */
+.wrap {
+  min-height: calc(100dvh - var(--nav-h));
+  padding-top: var(--nav-h);
+  background: var(--cream);
+  padding-bottom: 48px;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.title {
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--red);
+  margin: 0 0 16px;
+}
+
+.lead {
+  font-size: clamp(18px, 2.2vw, 22px);
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin: 0 0 40px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.heading {
+  font-size: clamp(20px, 2.4vw, 24px);
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+
+.body {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+.list {
+  margin: 0;
+  padding-left: 24px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+.list li {
+  margin-bottom: 12px;
+}
+.list strong {
+  color: var(--ink);
+}
+
+.cta {
+  margin-top: 48px;
+  text-align: center;
+}
+
+.ctaLink {
+  display: inline-block;
+  padding: 14px 32px;
+  background: var(--red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  border-radius: 999px;
+  box-shadow: 0 4px 20px rgba(184, 40, 40, 0.25);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
+}
+.ctaLink:hover {
+  background: var(--red-dark);
+  box-shadow: 0 6px 28px rgba(184, 40, 40, 0.35);
+  transform: translateY(-1px);
+}

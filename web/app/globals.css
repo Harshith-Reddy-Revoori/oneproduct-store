@@ -2,10 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Minimal global baseline — no opinionated component styles here. */
+/* OOKA theme — applied site-wide */
 :root {
-  --bg: #ffffff;
-  --text: #0f172a;
+  --bg: #fff8f8;
+  --text: #1a0a0a;
+  --ink: #1a0a0a;
+  --ink-2: #4a2525;
+  --ink-3: #6b3a3a;
+  --line: rgba(184, 40, 40, 0.15);
+  --red: #b82828;
+  --red-dark: #8b1a1a;
+  --red-light: #e8a0a0;
+  --cream: #fff8f8;
+  --radius: 16px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 20px rgba(184, 40, 40, 0.12);
+  --shadow-lg: 0 12px 40px rgba(184, 40, 40, 0.15);
+  --nav-h: 64px;
 }
 
 html, body { height: 100%; }
@@ -17,7 +31,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
 }
 
 /* Media defaults */
@@ -26,14 +39,14 @@ img, picture, video, canvas, svg { display: block; max-width: 100%; }
 /* Form controls inherit font */
 input, button, textarea, select { font: inherit; }
 
-/* Accessible focus ring (tuned to your brand green) */
+/* Accessible focus ring (red theme) */
 :focus-visible {
-  outline: 2px solid #0aa37f;
+  outline: 2px solid #b82828;
   outline-offset: 2px;
 }
 
 /* Optional: selection color */
-::selection { background: #a7f3d0; color: #064e3b; }
+::selection { background: #e8a0a0; color: #1a0a0a; }
 
 /* Utility helper */
 .visually-hidden {

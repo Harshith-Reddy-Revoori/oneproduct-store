@@ -1,11 +1,16 @@
+import Link from "next/link";
+import styles from "@/components/Auth.module.css";
+
 export default function VerifyRequest() {
-    return (
-      <main className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-md border rounded-2xl p-6 space-y-2">
-          <h1 className="text-2xl font-bold">Check your email</h1>
-          <p>We’ve sent you a sign-in link. Open it on this device to continue.</p>
-        </div>
-      </main>
-    );
-  }
-  
+  return (
+    <div className={`${styles.authTheme} ${styles.authWrap}`}>
+      <div className={styles.card} style={{ textAlign: "center" }}>
+        <h1 className={styles.title}>Check your email</h1>
+        <p style={{ color: "var(--ink-2)", margin: "0 0 16px" }}>
+          We&apos;ve sent you a sign-in link. Open it on this device to continue.
+        </p>
+        <Link href="/login" className={styles.link}>Back to login</Link>
+      </div>
+    </div>
+  );
+}

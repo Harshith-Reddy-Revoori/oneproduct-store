@@ -2,7 +2,8 @@ import Storefront from "@/components/Storefront";
 import { prisma } from "@/lib/prisma";
 import type { StoreProduct } from "@/types/product";
 
-export const revalidate = 60;
+// Render on each request so build does not require database access (avoids "Tenant or user not found" in CI).
+export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const db = await prisma.products.findFirst({

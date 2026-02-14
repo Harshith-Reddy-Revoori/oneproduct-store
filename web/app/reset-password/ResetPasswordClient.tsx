@@ -1,6 +1,9 @@
 "use client";
+
 import { useSearchParams } from "next/navigation";
 import { useState, FormEvent } from "react";
+import Link from "next/link";
+import styles from "@/components/Auth.module.css";
 
 export default function ResetPasswordClient() {
   const params = useSearchParams();
@@ -21,23 +24,38 @@ export default function ResetPasswordClient() {
     else setMsg(data.error || "Could not reset password");
   }
 
-  if (!token) return <p className="p-6">Missing token.</p>;
+  if (!token) {
+    return (
+      <div className={`${styles.authTheme} ${styles.authWrap}`}>
+        <div className={styles.card}>
+          <p className={styles.error}>Invalid or missing reset link.</p>
+          <Link href="/forgot-password" className={styles.link}>Request a new link</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-2 max-w-sm p-6">
-      <h1 className="text-xl font-semibold">Reset password</h1>
-      <input
-        type="password"
-        value={password}
-        onChange={(e)=>setPassword(e.target.value)}
-        placeholder="New password"
-        className="border rounded p-3"
-        required
-      />
-      <button type="submit" className="border rounded-xl p-3 font-semibold">
-        Update password
-      </button>
-      {msg && <p>{msg}</p>}
-    </form>
+    <div className={`${styles.authTheme} ${styles.authWrap}`}>
+      <form onSubmit={onSubmit} className={styles.card}>
+        <h1 className={styles.title}>Reset password</h1>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="New password (min 8 characters)"
+          minLength={8}
+          className={styles.input}
+          required
+        />
+        <button type="submit" className={styles.submit}>Update password</button>
+        <div className={styles.linkRow}>
+          <Link href="/login" className={styles.link}>Back to login</Link>
+        </div>
+        {msg && (
+          <p className={msg.startsWith("Password reset") ? styles.success : styles.error}>{msg}</p>
+        )}
+      </form>
+    </div>
   );
 }

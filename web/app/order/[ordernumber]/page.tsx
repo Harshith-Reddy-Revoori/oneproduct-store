@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatPaise } from "@/lib/money";
+import styles from "@/components/OrderSuccess.module.css";
 
 function toPlain<T>(data: T): T {
   return JSON.parse(
@@ -23,11 +24,11 @@ export default async function OrderSuccessPage({
 
   if (!order) {
     return (
-      <main className="p-8">
-        <h1 className="text-3xl font-bold">Order not found</h1>
-        <p className="mt-4">
-          We couldn’t find that order.{" "}
-          <Link href="/" className="underline">Go back</Link>
+      <main className={`${styles.orderTheme} ${styles.notFoundWrap}`}>
+        <h1 className={styles.notFoundTitle}>Order not found</h1>
+        <p className={styles.muted}>
+          We couldn&apos;t find that order.{" "}
+          <Link href="/" className={styles.notFoundLink}>Go back home</Link>
         </p>
       </main>
     );
@@ -36,34 +37,56 @@ export default async function OrderSuccessPage({
   const o = toPlain(order);
 
   return (
-    <main className="p-6 max-w-3xl mx-auto space-y-4">
-      <h1 className="text-3xl font-bold">Thanks! Order {o.order_number}</h1>
-      <p>We’ve emailed your confirmation. We’ll update you when it ships.</p>
+    <main className={`${styles.orderTheme} ${styles.wrap}`}>
+      <h1 className={styles.pageTitle}>Thanks! Order {o.order_number}</h1>
+      <p className={styles.subtitle}>
+        We&apos;ve emailed your confirmation. We&apos;ll update you when it ships.
+      </p>
 
-      <section className="rounded-2xl border p-6 grid md:grid-cols-2 gap-6">
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold">Summary</h2>
-          <div>Product: {o.product?.name}</div>
-          <div>Size: {o.size_label} • Qty: {o.quantity}</div>
-          <div>Unit: {formatPaise(o.unit_price_paise)}</div>
-          <div>Discount: {formatPaise(o.discount_paise)}</div>
-          <div className="font-semibold">Total: {formatPaise(o.total_paise)}</div>
-          <div>Status: <b>{o.payment_status}</b></div>
+      <section className={styles.card}>
+        <div style={{ display: "grid", gap: 12 }}>
+          <h2 className={styles.sectionTitle}>Summary</h2>
+          <div className={styles.summaryRow}>
+            <span>Product</span>
+            <strong>{o.product?.name}</strong>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>Size · Qty</span>
+            <strong>{o.size_label} × {o.quantity}</strong>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>Unit price</span>
+            <strong>{formatPaise(o.unit_price_paise)}</strong>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>Discount</span>
+            <strong>{formatPaise(o.discount_paise)}</strong>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>Total</span>
+            <strong>{formatPaise(o.total_paise)}</strong>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>Status</span>
+            <strong>{o.payment_status}</strong>
+          </div>
         </div>
 
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold">Shipping to</h2>
+        <hr className={styles.rule} />
+
+        <div style={{ display: "grid", gap: 8 }}>
+          <h2 className={styles.sectionTitle}>Shipping to</h2>
           <div>{o.customer_name}</div>
-          <div className="text-sm text-gray-600">{o.user_email}</div>
-          <div className="text-sm">Phone: {o.phone}</div>
-          <div className="text-sm">
+          <div className={styles.muted}>{o.user_email}</div>
+          <div className={styles.muted}>Phone: {o.phone}</div>
+          <div className={styles.muted}>
             {o.address_line1}
             {o.address_line2 ? `, ${o.address_line2}` : ""}, {o.city}, {o.state} {o.pincode}
           </div>
         </div>
       </section>
 
-      <Link href="/" className="underline">← Continue shopping</Link>
+      <Link href="/" className={styles.backLink}>← Continue shopping</Link>
     </main>
   );
 }
