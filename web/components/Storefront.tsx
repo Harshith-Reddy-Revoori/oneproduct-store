@@ -102,59 +102,120 @@ export default function Storefront({ product }: { product: StoreProduct | null }
 
   return (
     <div className={styles.page}>
-      {/* Hero – product jar as full-bleed background, text + Shop Now on top */}
+      {/* Hero – desktop: full-bleed product_hero, text + Shop Now overlay. Mobile: stacked text → jar (product_hero_m) → button. */}
       <section className={styles.heroSection} aria-label="Hero">
-        <div className={styles.heroBg}>
-          <Image
-            src="/ooka/product-jar.png"
-            alt=""
-            fill
-            className={styles.heroBgImage}
-            priority
-            sizes="100vw"
-          />
-          <div className={styles.heroOverlay} aria-hidden />
-        </div>
-        <div className={styles.heroContentWrap}>
-          <motion.h1
-            className={styles.heroTitle}
-            initial={noMotion ? fadeInUp : undefined}
-            animate={noMotion ? fadeInUpEnd : undefined}
-            transition={{ ...transitionSlow, delay: 0.1 }}
-          >
-            OOKA<span className={styles.tm}>™</span>
-          </motion.h1>
-          <motion.p
-            className={styles.heroTagline}
-            initial={noMotion ? fadeInUp : undefined}
-            animate={noMotion ? fadeInUpEnd : undefined}
-            transition={{ ...transitionSlow, delay: 0.2 }}
-          >
-            Zero Sugar, Zero Cavities
-          </motion.p>
-          <motion.p
-            className={styles.heroSub}
-            initial={noMotion ? fadeIn : undefined}
-            animate={noMotion ? fadeInEnd : undefined}
-            transition={{ ...transitionSlow, delay: 0.3 }}
-          >
-            Doesn&apos;t feed dental bacteria that cause decay.
-          </motion.p>
-          <motion.div
-            className={styles.heroCtaWrap}
-            initial={noMotion ? fadeInUp : undefined}
-            animate={noMotion ? fadeInUpEnd : undefined}
-            transition={{ ...transitionSlow, delay: 0.4 }}
-          >
-            <motion.button
-              className={styles.heroShopBtn}
-              onClick={() => scrollTo("buy")}
-              whileHover={noMotion ? undefined : { scale: 1.03 }}
-              whileTap={noMotion ? undefined : { scale: 0.98 }}
+        {/* Desktop hero: product_hero full-bleed, text + button on top */}
+        <div className={styles.heroDesktop}>
+          <div className={styles.heroBg}>
+            <Image
+              src="/ooka/product_hero.png"
+              alt=""
+              fill
+              className={styles.heroBgImage}
+              priority
+              sizes="(max-width: 899px) 0px, 100vw"
+            />
+            <div className={styles.heroOverlay} aria-hidden />
+          </div>
+          <div className={styles.heroContentWrap}>
+            <motion.h1
+              className={styles.heroTitle}
+              initial={noMotion ? fadeInUp : undefined}
+              animate={noMotion ? fadeInUpEnd : undefined}
+              transition={{ ...transitionSlow, delay: 0.1 }}
             >
-              Shop Now
-            </motion.button>
-          </motion.div>
+              OOKA<span className={styles.tm}>™</span>
+            </motion.h1>
+            <motion.p
+              className={styles.heroTagline}
+              initial={noMotion ? fadeInUp : undefined}
+              animate={noMotion ? fadeInUpEnd : undefined}
+              transition={{ ...transitionSlow, delay: 0.2 }}
+            >
+              Zero Sugar, Zero Cavities
+            </motion.p>
+            <motion.p
+              className={styles.heroSub}
+              initial={noMotion ? fadeIn : undefined}
+              animate={noMotion ? fadeInEnd : undefined}
+              transition={{ ...transitionSlow, delay: 0.3 }}
+            >
+              Doesn&apos;t feed dental bacteria that cause decay.
+            </motion.p>
+            <motion.div
+              className={styles.heroCtaWrap}
+              initial={noMotion ? fadeInUp : undefined}
+              animate={noMotion ? fadeInUpEnd : undefined}
+              transition={{ ...transitionSlow, delay: 0.4 }}
+            >
+              <motion.button
+                className={styles.heroShopBtn}
+                onClick={() => scrollTo("buy")}
+                whileHover={noMotion ? undefined : { scale: 1.03 }}
+                whileTap={noMotion ? undefined : { scale: 0.98 }}
+              >
+                Shop Now
+              </motion.button>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Mobile hero: product_hero_m as full-bleed background, text + Shop Now overlaid on top */}
+        <div className={styles.heroMobile}>
+          <div className={styles.heroMobileBg}>
+            <Image
+              src="/ooka/product_hero_m.png"
+              alt=""
+              fill
+              className={styles.heroMobileBgImage}
+              sizes="100vw"
+              priority
+            />
+            <div className={styles.heroMobileOverlay} aria-hidden />
+          </div>
+          <div className={styles.heroMobileContent}>
+            <div className={styles.heroMobileCopy}>
+              <motion.h1
+                className={styles.heroMobileTitle}
+                initial={noMotion ? fadeInUp : undefined}
+                animate={noMotion ? fadeInUpEnd : undefined}
+                transition={{ ...transitionSlow, delay: 0.1 }}
+              >
+
+              </motion.h1>
+              <motion.p
+                className={styles.heroMobileTagline}
+                initial={noMotion ? fadeInUp : undefined}
+                animate={noMotion ? fadeInUpEnd : undefined}
+                transition={{ ...transitionSlow, delay: 0.2 }}
+              >
+                Zero Sugar, Zero Cavities
+              </motion.p>
+              <motion.p
+                className={styles.heroMobileSub}
+                initial={noMotion ? fadeIn : undefined}
+                animate={noMotion ? fadeInEnd : undefined}
+                transition={{ ...transitionSlow, delay: 0.3 }}
+              >
+                Doesn&apos;t feed dental bacteria that cause decay.
+              </motion.p>
+            </div>
+            <motion.div
+              className={styles.heroMobileCta}
+              initial={noMotion ? fadeInUp : undefined}
+              animate={noMotion ? fadeInUpEnd : undefined}
+              transition={{ ...transitionSlow, delay: 0.4 }}
+            >
+              <motion.button
+                className={styles.heroShopBtn}
+                onClick={() => scrollTo("buy")}
+                whileHover={noMotion ? undefined : { scale: 1.03 }}
+                whileTap={noMotion ? undefined : { scale: 0.98 }}
+              >
+                Shop Now
+              </motion.button>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -281,6 +342,42 @@ export default function Storefront({ product }: { product: StoreProduct | null }
                 </motion.span>
               </div>
             </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Sweetness comparison table */}
+      <section className={styles.comparisonSection} aria-labelledby="comparison-heading">
+        <div className={styles.container}>
+          <motion.div
+            className={styles.comparisonHeader}
+            initial={noMotion ? undefined : { opacity: 0, y: 20 }}
+            whileInView={noMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={transitionSlow}
+          >
+            <h2 id="comparison-heading" className={styles.comparisonTitle}>
+              How OOKA Compares
+            </h2>
+            <p className={styles.comparisonSub}>
+              See how our monk fruit + allulose blend stacks up against sugar and other sweeteners.
+            </p>
+          </motion.div>
+          <motion.div
+            className={styles.comparisonImageWrap}
+            initial={noMotion ? undefined : { opacity: 0, y: 24 }}
+            whileInView={noMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ ...transitionSlow, delay: 0.15 }}
+          >
+            <Image
+              src="/ooka/sweetness_comparision.jpeg"
+              alt="Sweetness comparison: OOKA monk fruit allulose vs sugar, stevia, and other sweeteners"
+              width={900}
+              height={600}
+              className={styles.comparisonImage}
+              sizes="(max-width: 900px) 100vw, 900px"
+            />
           </motion.div>
         </div>
       </section>
