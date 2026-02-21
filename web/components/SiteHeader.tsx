@@ -31,6 +31,7 @@ export default function SiteHeader() {
           <div className={styles.navLinks} aria-label="Primary">
             <button type="button" onClick={() => jump("daily-favourites")}>Shop</button>
             <button type="button" onClick={() => jump("buy")}>Buy</button>
+            <Link href="/reviews">Reviews</Link>
             <Link href="/about">About</Link>
             <Link href="/account">Account</Link>
           </div>
@@ -51,6 +52,7 @@ export default function SiteHeader() {
             <div className={styles.container}>
               <button type="button" onClick={() => jump("daily-favourites")}>Shop</button>
               <button type="button" onClick={() => jump("buy")}>Buy</button>
+              <Link href="/reviews">Reviews</Link>
               <Link href="/about">About</Link>
               <Link href="/account">Account</Link>
             </div>

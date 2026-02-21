@@ -7,13 +7,14 @@ import Link from "next/link";
 import { formatPaise } from "@/lib/money";
 import type { Prisma } from "@prisma/client";
 import { updateOrderStatus, saveAdminNote } from "./actions";
+import styles from "@/components/Admin.module.css";
 
 type Status = "pending" | "paid" | "failed" | "refunded";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
   const role = (session as unknown as { role?: string })?.role;
-  if (!session || role !== "admin") redirect("/login");
+  if (!session || role !== "admin") redirect("/admin/login");
 }
 
 type OrderRow = Prisma.ordersGetPayload<{
@@ -98,39 +99,37 @@ export default async function OrderDetailPage({
   const o: AdminOrder = toAdminOrder(orderRow);
 
   return (
-    <main className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Order {o.order_number}</h1>
-        <Link className="underline" href="/admin/orders">
-          ← Back to Orders
-        </Link>
+    <>
+      <div className={styles.headerRow}>
+        <h1 className={styles.pageTitle}>Order {o.order_number}</h1>
+        <Link className={styles.backLink} href="/admin/orders">← Back to Orders</Link>
       </div>
 
-      {ok ? <div className="rounded-lg border p-3 text-green-700 bg-green-50">Saved ✓</div> : null}
-      {err ? <div className="rounded-lg border p-3 text-red-700 bg-red-50">{err}</div> : null}
+      {ok ? <div className={`${styles.alert} ${styles.alertSuccess}`}>Saved ✓</div> : null}
+      {err ? <div className={`${styles.alert} ${styles.alertError}`}>{err}</div> : null}
 
-      <section className="rounded-2xl border p-6 grid md:grid-cols-2 gap-6">
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold">Customer</h2>
+      <section className={styles.detailGrid}>
+        <div className={styles.detailBlock}>
+          <h2>Customer</h2>
           <div>{o.customer_name}</div>
-          <div className="text-sm text-gray-600">{o.user_email}</div>
-          <div className="text-sm">Phone: {o.phone}</div>
-          <div className="text-sm">
+          <div className={styles.textMuted}>{o.user_email}</div>
+          <div>Phone: {o.phone}</div>
+          <div>
             {o.address_line1}
             {o.address_line2 ? `, ${o.address_line2}` : ""}, {o.city}, {o.state} {o.pincode}
           </div>
         </div>
 
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold">Order</h2>
+        <div className={styles.detailBlock}>
+          <h2>Order</h2>
           <div>Product: {o.product_name ?? "Product"}</div>
           <div>Size: {o.size_label} • Qty: {o.quantity}</div>
           <div>Unit: {formatPaise(o.unit_price_paise)}</div>
           <div>Discount: {formatPaise(o.discount_paise)}</div>
-          <div className="font-semibold">Total: {formatPaise(o.total_paise)}</div>
+          <div style={{ fontWeight: 600 }}>Total: {formatPaise(o.total_paise)}</div>
           <div>Status: <b>{o.payment_status}</b></div>
-          <div className="text-sm text-gray-600">Provider: {o.payment_provider ?? "—"}</div>
-          <div className="text-xs text-gray-500">
+          <div className={styles.textMuted}>Provider: {o.payment_provider ?? "—"}</div>
+          <div className={styles.textMuted} style={{ fontSize: "0.75rem" }}>
             Order ID: {o.provider_order_id || "—"}
             <br />
             Payment ID: {o.provider_payment_id || "—"}
@@ -138,30 +137,30 @@ export default async function OrderDetailPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Update</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Update</h2>
 
-        <form action={updateOrderStatus} className="flex gap-2 items-center">
+        <form action={updateOrderStatus} className={styles.inlineFormRow}>
           <input type="hidden" name="id" value={o.id} />
-          <select name="payment_status" defaultValue={o.payment_status} className="border rounded-lg p-2">
+          <select name="payment_status" defaultValue={o.payment_status} className={styles.select}>
             {(["pending", "paid", "failed", "refunded"] as const).map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          <button className="border rounded-xl px-3 py-2 text-sm">Save status</button>
+          <button type="submit" className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}>Save status</button>
         </form>
 
-        <form action={saveAdminNote} className="flex gap-2 items-start">
+        <form action={saveAdminNote} className={styles.inlineFormRow}>
           <input type="hidden" name="id" value={o.id} />
           <textarea
             name="admin_note"
             defaultValue={o.admin_note || ""}
             placeholder="Internal admin note"
-            className="border rounded-lg p-2 w-full min-h-[90px]"
+            className={styles.textarea}
           />
-          <button className="border rounded-xl px-3 py-2 text-sm">Save note</button>
+          <button type="submit" className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}>Save note</button>
         </form>
       </section>
-    </main>
+    </>
   );
 }

@@ -17,7 +17,7 @@ export default function SiteFooter() {
               <ul className={styles.footerList}>
                 <li><Link className={styles.footerLink} href="/#daily-favourites">Shop</Link></li>
                 <li><Link className={styles.footerLink} href="/#buy">Buy</Link></li>
-                <li><Link className={styles.footerLink} href="/#reviews">Reviews</Link></li>
+                <li><Link className={styles.footerLink} href="/reviews">Reviews</Link></li>
               </ul>
             </div>
             <div>
@@ -25,7 +25,7 @@ export default function SiteFooter() {
               <ul className={styles.footerList}>
                 <li><Link className={styles.footerLink} href="/about">About us</Link></li>
                 <li><Link className={styles.footerLink} href="/#daily-favourites">Daily favourites</Link></li>
-                <li><Link className={styles.footerLink} href="/#reviews">What people say</Link></li>
+                <li><Link className={styles.footerLink} href="/reviews">What people say</Link></li>
                 <li><Link className={styles.footerLink} href="/#buy">Get started</Link></li>
               </ul>
             </div>

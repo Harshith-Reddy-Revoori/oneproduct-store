@@ -5,7 +5,9 @@ import { useMemo, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import type { StoreProduct } from "@/types/product";
+import { TESTIMONIALS } from "@/lib/testimonials";
 import styles from "./Storefront.module.css";
 
 type SizeRow = StoreProduct["product_sizes"][number];
@@ -33,13 +35,6 @@ const CAROUSEL_IMAGES = [
   { src: "/ooka/active-run.png", alt: "OOKA active lifestyle" },
 ];
 
-const TESTIMONIALS = [
-  { quote: "This is my new favorite monk fruit blend! No aftertaste at all.", name: "Anna S.", role: "Coffee enthusiast" },
-  { quote: "Finally a sweetener I can use daily. Doesn't feed dental bacteria.", name: "Brian L.", role: "Dietitian" },
-  { quote: "Perfect 1:1 sugar replacement for my baking. Game changer.", name: "Jillian C.", role: "Home baker" },
-  { quote: "So easy to order and it arrived fast. Loving it.", name: "David M.", role: "Fitness coach" },
-];
-
 const fadeInUp = { opacity: 0, y: 28 };
 const fadeInUpEnd = { opacity: 1, y: 0 };
 const fadeIn = { opacity: 0 };
@@ -53,6 +48,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
   const noMotion = !!prefersReduced;
 
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [reviewIndex, setReviewIndex] = useState(0);
 
   const sizes = useMemo<StoreProduct["product_sizes"]>(
     () => (product?.product_sizes ?? []) as StoreProduct["product_sizes"],
@@ -79,6 +75,14 @@ export default function Storefront({ product }: { product: StoreProduct | null }
     const t = setInterval(() => {
       setCarouselIndex((i) => (i + 1) % CAROUSEL_IMAGES.length);
     }, 4500);
+    return () => clearInterval(t);
+  }, [noMotion]);
+
+  useEffect(() => {
+    if (noMotion) return;
+    const t = setInterval(() => {
+      setReviewIndex((i) => (i + 1) % TESTIMONIALS.length);
+    }, 5000);
     return () => clearInterval(t);
   }, [noMotion]);
 
@@ -459,7 +463,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Reviews carousel */}
       <section id="reviews" className={styles.section}>
         <div className={styles.container}>
           <motion.h2
@@ -471,23 +475,60 @@ export default function Storefront({ product }: { product: StoreProduct | null }
           >
             This is literally what people are saying about us
           </motion.h2>
-          <div className={styles.tGrid}>
-            {TESTIMONIALS.map((t, i) => (
-              <motion.blockquote
-                key={i}
-                className={styles.tCard}
-                initial={noMotion ? { opacity: 0, y: 24 } : undefined}
-                whileInView={noMotion ? { opacity: 1, y: 0 } : undefined}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ delay: i * 0.08, ...transitionFast }}
+          <div className={styles.reviewCarouselWrap}>
+            <div className={styles.reviewCarousel}>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.blockquote
+                  key={reviewIndex}
+                  className={styles.reviewCard}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={transitionFast}
+                >
+                  <p className={styles.reviewQuote}>&ldquo;{TESTIMONIALS[reviewIndex].quote}&rdquo;</p>
+                  <footer className={styles.reviewMeta}>
+                    <span className={styles.reviewName}>{TESTIMONIALS[reviewIndex].name}</span>
+                    <span className={styles.reviewRole}>{TESTIMONIALS[reviewIndex].role}</span>
+                  </footer>
+                </motion.blockquote>
+              </AnimatePresence>
+            </div>
+            <div className={styles.reviewControls}>
+              <button
+                type="button"
+                className={styles.reviewNavBtn}
+                onClick={() => setReviewIndex((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+                aria-label="Previous review"
               >
-                <p className={styles.tQuote}>&ldquo;{t.quote}&rdquo;</p>
-                <footer className={styles.tMeta}>
-                  <span className={styles.tName}>{t.name}</span>
-                  <span className={styles.tRole}>{t.role}</span>
-                </footer>
-              </motion.blockquote>
-            ))}
+                ←
+              </button>
+              <div className={styles.reviewDots} role="tablist" aria-label="Review navigation">
+                {TESTIMONIALS.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === reviewIndex}
+                    aria-label={`Review ${i + 1}`}
+                    className={styles.reviewDot}
+                    data-active={i === reviewIndex}
+                    onClick={() => setReviewIndex(i)}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                className={styles.reviewNavBtn}
+                onClick={() => setReviewIndex((i) => (i + 1) % TESTIMONIALS.length)}
+                aria-label="Next review"
+              >
+                →
+              </button>
+            </div>
+            <Link href="/reviews" className={styles.viewAllReviews}>
+              View all {TESTIMONIALS.length} reviews →
+            </Link>
           </div>
         </div>
       </section>

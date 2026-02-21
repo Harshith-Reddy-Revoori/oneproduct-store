@@ -13,7 +13,7 @@ const STATUSES: Status[] = ["pending", "paid", "failed", "refunded"];
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
   const role = (session as unknown as { role?: string })?.role;
-  if (!session || role !== "admin") redirect("/login");
+  if (!session || role !== "admin") redirect("/admin/login");
 }
 
 function isStatus(s: unknown): s is Status {

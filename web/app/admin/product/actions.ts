@@ -11,7 +11,7 @@ import { rupeesToPaise } from "@/lib/money";
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
   const role = (session as unknown as { role?: string })?.role;
-  if (!session || role !== "admin") redirect("/login");
+  if (!session || role !== "admin") redirect("/admin/login");
 }
 
 function boolFromCheckbox(v: FormDataEntryValue | null): boolean {

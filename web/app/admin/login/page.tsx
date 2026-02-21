@@ -1,13 +1,10 @@
 "use client";
-import { Suspense } from "react";
 import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import styles from "@/components/Auth.module.css";
 
-function LoginForm() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,9 +12,9 @@ function LoginForm() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
-    const res = await signIn("credentials", { email, password, redirect: false });
+    const res = await signIn("admin", { email, password, redirect: false });
     if (res?.ok) {
-      window.location.href = callbackUrl;
+      window.location.href = "/admin";
     } else {
       setError("Invalid email or password");
     }
@@ -45,23 +42,18 @@ function LoginForm() {
           className={styles.input}
         />
 
-        <button type="submit" className={styles.submit}>Sign in</button>
+        <button type="submit" className={styles.submit}>
+          Sign in
+        </button>
 
         <div className={styles.linkRow}>
-          <a href="/forgot-password" className={styles.link}>Forgot password?</a>
-          <a href="/signup" className={styles.link}>Create an account</a>
+          <Link href="/" className={styles.link}>
+            Back to store
+          </Link>
         </div>
 
         {error ? <p className={styles.error}>{error}</p> : null}
       </form>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className={`${styles.authTheme} ${styles.authWrap}`} aria-hidden><p style={{ margin: 0, opacity: 0.7 }}>Loading…</p></div>}>
-      <LoginForm />
-    </Suspense>
   );
 }

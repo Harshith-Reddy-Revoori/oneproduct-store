@@ -6,12 +6,13 @@ import { redirect } from "next/navigation";
 import { formatPaise } from "@/lib/money";
 import type { Prisma } from "@prisma/client";
 import { addSize, updateSize, deleteSize } from "./actions";
+import styles from "@/components/Admin.module.css";
 
 /* ------------ auth ------------ */
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
   const role = (session as unknown as { role?: string })?.role;
-  if (!session || role !== "admin") redirect("/login");
+  if (!session || role !== "admin") redirect("/admin/login");
 }
 
 /* ------------ types ------------ */
@@ -55,10 +56,10 @@ export default async function SizesAdminPage({
 
   if (!p) {
     return (
-      <main className="p-8">
-        <h1 className="text-3xl font-bold">Sizes</h1>
-        <p className="mt-4 text-gray-600">No active product found. Create one in the admin.</p>
-      </main>
+      <>
+        <h1 className={styles.pageTitle}>Sizes</h1>
+        <p className={styles.emptyState}>No active product found. Create one in the admin.</p>
+      </>
     );
   }
 
@@ -70,80 +71,80 @@ export default async function SizesAdminPage({
   );
 
   return (
-    <main className="p-8 space-y-6">
-      <h1 className="text-3xl font-bold">Sizes — {p.name}</h1>
+    <>
+      <h1 className={styles.pageTitle}>Sizes — {p.name}</h1>
 
-      {ok ? <div className="rounded border p-3 bg-green-50 text-green-700">Saved ✓</div> : null}
-      {err ? <div className="rounded border p-3 bg-red-50 text-red-700">{err}</div> : null}
+      {ok ? <div className={`${styles.alert} ${styles.alertSuccess}`}>Saved ✓</div> : null}
+      {err ? <div className={`${styles.alert} ${styles.alertError}`}>{err}</div> : null}
 
-      {/* Add size */}
-      <section className="rounded-2xl border p-6 space-y-3">
-        <h2 className="text-xl font-semibold">Add size</h2>
-        <form action={addSize} className="grid gap-3 md:grid-cols-[1fr_140px_160px_auto]">
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Add size</h2>
+        <form action={addSize} className={`${styles.formGrid} ${styles.formGrid2}`}>
           <input type="hidden" name="product_id" value={p.id} />
-          <input name="label" placeholder="Label (e.g., 250g)" className="border rounded-lg p-3" required />
-          <input name="stock" type="number" min="0" step="1" placeholder="Stock" className="border rounded-lg p-3" />
-          <input name="price_rupees" type="number" step="0.01" min="0" placeholder="Price override ₹ (optional)" className="border rounded-lg p-3" />
-          <button className="border rounded-xl px-4 py-2 font-semibold">Add</button>
+          <div className={styles.formGroup}>
+            <input name="label" placeholder="Label (e.g., 250g)" className={styles.input} required />
+          </div>
+          <div className={styles.formGroup}>
+            <input name="stock" type="number" min="0" step="1" placeholder="Stock" className={styles.input} />
+          </div>
+          <div className={styles.formGroup}>
+            <input name="price_rupees" type="number" step="0.01" min="0" placeholder="Price override ₹ (optional)" className={styles.input} />
+          </div>
+          <div className={styles.formActions}>
+            <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>Add</button>
+          </div>
         </form>
-        <p className="text-xs text-gray-600">Leave price blank to use product base price.</p>
+        <p className={styles.sectionHint}>Leave price blank to use product base price.</p>
       </section>
 
-      {/* List sizes */}
-      <section className="rounded-2xl border p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Existing sizes</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Existing sizes</h2>
         {sizes.length === 0 ? (
-          <p className="text-gray-600">No sizes yet.</p>
+          <p className={styles.emptyState}>No sizes yet.</p>
         ) : (
-          <div className="grid gap-3">
+          <div className={styles.formGrid} style={{ gap: "12px" }}>
             {sizes.map((s) => (
-              <div key={s.id} className="grid gap-3 md:grid-cols-[1fr_140px_160px_120px_auto] items-center border rounded-xl p-3">
-                <div className="font-mono">{s.label}</div>
+              <div key={s.id} className={`${styles.formRow} ${styles.formRowSizes}`}>
+                <div className={styles.rowMono}>{s.label}</div>
 
-                <form action={updateSize} className="contents">
+                <form action={updateSize} style={{ display: "contents" }}>
                   <input type="hidden" name="id" value={s.id} />
-
                   <input
                     name="stock"
                     type="number"
                     min="0"
                     step="1"
                     defaultValue={s.stock}
-                    className="border rounded-lg p-3"
+                    className={styles.formRowItem}
                   />
-
                   <input
                     name="price_rupees"
                     type="number"
                     step="0.01"
                     min="0"
                     defaultValue={s.price_override_paise == null ? "" : (s.price_override_paise / 100).toFixed(2)}
-                    className="border rounded-lg p-3"
+                    className={styles.formRowItem}
                   />
-
-                  <label className="flex items-center gap-2">
+                  <label className={styles.checkboxRow}>
                     <input name="is_active" type="checkbox" defaultChecked={s.is_active} />
-                    <span className="text-sm">Active</span>
+                    <span>Active</span>
                   </label>
-
-                  <button className="border rounded-xl px-4 py-2 font-semibold">Save</button>
+                  <button type="submit" className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}>Save</button>
                 </form>
 
-                <div className="text-sm text-gray-600">
+                <div className={styles.rowMeta}>
                   {s.price_override_paise == null ? "Base price" : formatPaise(s.price_override_paise)} • {s.stock} in stock
                 </div>
 
                 <form action={deleteSize}>
                   <input type="hidden" name="id" value={s.id} />
-                  <button className="border rounded-xl px-3 py-2 text-sm" type="submit">
-                    Delete
-                  </button>
+                  <button type="submit" className={`${styles.btn} ${styles.btnDanger} ${styles.btnSm}`}>Delete</button>
                 </form>
               </div>
             ))}
           </div>
         )}
       </section>
-    </main>
+    </>
   );
 }

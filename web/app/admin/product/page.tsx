@@ -5,11 +5,12 @@ import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import { saveProduct } from "./actions";
+import styles from "@/components/Admin.module.css";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
   const role = (session as unknown as { role?: string })?.role;
-  if (!session || role !== "admin") redirect("/login");
+  if (!session || role !== "admin") redirect("/admin/login");
 }
 
 type ProductRow = Prisma.productsGetPayload<true>;
@@ -30,80 +31,80 @@ export default async function ProductAdminPage({
   })) as ProductRow | null;
 
   return (
-    <main className="p-8 space-y-6">
-      <h1 className="text-3xl font-bold">Product</h1>
+    <>
+      <h1 className={styles.pageTitle}>Product</h1>
 
-      {ok ? <div className="rounded border p-3 bg-green-50 text-green-700">Saved ✓</div> : null}
-      {err ? <div className="rounded border p-3 bg-red-50 text-red-700">{err}</div> : null}
+      {ok ? <div className={`${styles.alert} ${styles.alertSuccess}`}>Saved ✓</div> : null}
+      {err ? <div className={`${styles.alert} ${styles.alertError}`}>{err}</div> : null}
 
-      <section className="rounded-2xl border p-6 space-y-4">
-        <form action={saveProduct} className="grid gap-4 md:grid-cols-2">
+      <section className={styles.section}>
+        <form action={saveProduct} className={`${styles.formGrid} ${styles.formGrid2}`}>
           <input type="hidden" name="id" value={product?.id ?? ""} />
-          <div className="md:col-span-2">
-            <label className="text-sm font-medium">Name</label>
+          <div className={styles.formGroupFull}>
+            <label className={styles.label}>Name</label>
             <input
               name="name"
               defaultValue={product?.name ?? ""}
-              className="mt-1 border rounded-lg p-3 w-full"
+              className={styles.input}
               required
             />
           </div>
 
-          <div className="md:col-span-2">
-            <label className="text-sm font-medium">Description</label>
+          <div className={styles.formGroupFull}>
+            <label className={styles.label}>Description</label>
             <textarea
               name="description"
               defaultValue={product?.description ?? ""}
-              className="mt-1 border rounded-lg p-3 w-full min-h-[120px]"
+              className={styles.textarea}
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Image URL</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Image URL</label>
             <input
               name="image_url"
               defaultValue={product?.image_url ?? ""}
-              className="mt-1 border rounded-lg p-3 w-full"
+              className={styles.input}
               placeholder="https://…"
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Currency</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Currency</label>
             <input
               name="currency"
               defaultValue={product?.currency ?? "INR"}
-              className="mt-1 border rounded-lg p-3 w-full"
+              className={styles.input}
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Base price (₹)</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Base price (₹)</label>
             <input
               name="base_rupees"
               type="number"
               step="0.01"
               min="0"
               defaultValue={product ? (Number(product.base_price_paise) / 100).toFixed(2) : "0.00"}
-              className="mt-1 border rounded-lg p-3 w-full"
+              className={styles.input}
             />
           </div>
 
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium">Out of stock</label>
+          <div className={`${styles.formGroup} ${styles.checkboxRow}`}>
             <input name="out_of_stock" type="checkbox" defaultChecked={product?.out_of_stock ?? false} />
+            <span>Out of stock</span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium">Active (listed on site)</label>
+          <div className={`${styles.formGroup} ${styles.checkboxRow}`}>
             <input name="active" type="checkbox" defaultChecked={product?.active ?? true} />
+            <span>Active (listed on site)</span>
           </div>
 
-          <div className="md:col-span-2 flex justify-end">
-            <button className="border rounded-xl px-5 py-3 font-semibold">Save product</button>
+          <div className={styles.formActions}>
+            <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>Save product</button>
           </div>
         </form>
       </section>
-    </main>
+    </>
   );
 }

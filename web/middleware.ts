@@ -17,12 +17,14 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Admin area protection (keeps what you already had)
+  // Admin area protection — unauthenticated sent to /admin/login (not public /login)
   if (pathname.startsWith("/admin")) {
+    if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
+      return NextResponse.next();
+    }
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     if (!token || (token as any).role !== "admin") {
-      const url = new URL("/login", req.url);
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(new URL("/admin/login", req.url));
     }
   }
 

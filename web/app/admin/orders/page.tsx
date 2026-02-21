@@ -6,12 +6,13 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { formatPaise } from "@/lib/money";
 import type { Prisma } from "@prisma/client";
+import styles from "@/components/Admin.module.css";
 
 /* --------- auth --------- */
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
   const role = (session as unknown as { role?: string })?.role;
-  if (!session || role !== "admin") redirect("/login");
+  if (!session || role !== "admin") redirect("/admin/login");
 }
 
 /* --------- types --------- */
@@ -78,72 +79,74 @@ export default async function OrdersAdminPage({
 
   const list = rows.map(toListItem);
 
+  const statusClass = (s: string) => {
+    switch (s) {
+      case "paid": return styles.statusPaid;
+      case "pending": return styles.statusPending;
+      case "failed": return styles.statusFailed;
+      case "refunded": return styles.statusRefunded;
+      default: return "";
+    }
+  };
+
   return (
-    <main className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Orders</h1>
-        <Link className="underline" href="/admin">
-          ← Admin
-        </Link>
+    <>
+      <div className={styles.headerRow}>
+        <h1 className={styles.pageTitle}>Orders</h1>
+        <Link className={styles.backLink} href="/admin">← Admin</Link>
       </div>
 
-      {ok ? <div className="rounded border p-3 bg-green-50 text-green-700">Saved ✓</div> : null}
-      {err ? <div className="rounded border p-3 bg-red-50 text-red-700">{err}</div> : null}
+      {ok ? <div className={`${styles.alert} ${styles.alertSuccess}`}>Saved ✓</div> : null}
+      {err ? <div className={`${styles.alert} ${styles.alertError}`}>{err}</div> : null}
 
-      <form className="flex items-center gap-2">
-        <label className="text-sm text-gray-700">Filter:</label>
-        <select
-          name="status"
-          defaultValue={statusFilter || ""}
-          className="border rounded-lg p-2 text-sm"
-        >
+      <form className={styles.filterRow} method="get">
+        <span className={styles.label}>Filter:</span>
+        <select name="status" defaultValue={statusFilter || ""} className={styles.select} style={{ width: "auto", minWidth: "120px" }}>
           <option value="">All</option>
           <option value="pending">pending</option>
           <option value="paid">paid</option>
           <option value="failed">failed</option>
           <option value="refunded">refunded</option>
         </select>
-        <button className="border rounded-lg px-3 py-2 text-sm">Apply</button>
+        <button type="submit" className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}>Apply</button>
       </form>
 
       {list.length === 0 ? (
-        <p className="text-gray-600">No orders yet.</p>
+        <p className={styles.emptyState}>No orders yet.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border">
-          <table className="min-w-[800px] w-full text-sm">
-            <thead className="bg-gray-50 text-gray-700">
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <th className="text-left p-3">Order #</th>
-                <th className="text-left p-3">Date</th>
-                <th className="text-left p-3">Customer</th>
-                <th className="text-left p-3">Product</th>
-                <th className="text-left p-3">Size</th>
-                <th className="text-right p-3">Qty</th>
-                <th className="text-right p-3">Total</th>
-                <th className="text-left p-3">Status</th>
-                <th className="text-left p-3">Action</th>
+                <th>Order #</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Product</th>
+                <th>Size</th>
+                <th className={styles.textRight}>Qty</th>
+                <th className={styles.textRight}>Total</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {list.map((o) => (
-                <tr key={o.id} className="border-t">
-                  <td className="p-3 font-mono">{o.order_number}</td>
-                  <td className="p-3">{o.created_at.toLocaleString()}</td>
-                  <td className="p-3">
-                    <div className="font-medium">{o.customer_name}</div>
-                    <div className="text-xs text-gray-600">{o.user_email}</div>
+                <tr key={o.id}>
+                  <td className={styles.cellMono}>{o.order_number}</td>
+                  <td>{o.created_at.toLocaleString()}</td>
+                  <td>
+                    <div className={styles.cellCustomerName}>{o.customer_name}</div>
+                    <div className={styles.cellCustomerEmail}>{o.user_email}</div>
                   </td>
-                  <td className="p-3">{o.product_name ?? "—"}</td>
-                  <td className="p-3">{o.size_label}</td>
-                  <td className="p-3 text-right">{o.quantity}</td>
-                  <td className="p-3 text-right">{formatPaise(o.total_paise)}</td>
-                  <td className="p-3">
-                    <span className="rounded border px-2 py-1 text-xs">{o.payment_status}</span>
+                  <td>{o.product_name ?? "—"}</td>
+                  <td>{o.size_label}</td>
+                  <td className={styles.textRight}>{o.quantity}</td>
+                  <td className={styles.textRight}>{formatPaise(o.total_paise)}</td>
+                  <td>
+                    <span className={`${styles.statusBadge} ${statusClass(o.payment_status)}`}>{o.payment_status}</span>
                   </td>
-                  <td className="p-3">
-                    <Link className="underline" href={`/admin/orders/${o.id}`}>
-                      View
-                    </Link>
+                  <td>
+                    <Link className={styles.tableLink} href={`/admin/orders/${o.id}`}>View</Link>
                   </td>
                 </tr>
               ))}
@@ -151,6 +154,6 @@ export default async function OrdersAdminPage({
           </table>
         </div>
       )}
-    </main>
+    </>
   );
 }
