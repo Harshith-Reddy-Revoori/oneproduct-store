@@ -118,6 +118,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
               className={styles.heroBgImage}
               priority
               sizes="(max-width: 899px) 0px, 100vw"
+              unoptimized
             />
             <div className={styles.heroOverlay} aria-hidden />
           </div>
@@ -174,6 +175,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
               className={styles.heroMobileBgImage}
               sizes="100vw"
               priority
+              unoptimized
             />
             <div className={styles.heroMobileOverlay} aria-hidden />
           </div>
@@ -276,6 +278,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
                 fill
                 className={styles.carouselImage}
                 sizes="100vw"
+                unoptimized
               />
             </motion.div>
           </AnimatePresence>
@@ -330,6 +333,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
                   width={240}
                   height={280}
                   className={styles.roundedImage}
+                  unoptimized
                 />
               </div>
               <div className={styles.lipstickCardInfo}>
@@ -381,6 +385,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
               height={600}
               className={styles.comparisonImage}
               sizes="(max-width: 900px) 100vw, 900px"
+              unoptimized
             />
           </motion.div>
         </div>
@@ -402,6 +407,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
               fill
               className={styles.toteImage}
               sizes="100vw"
+              unoptimized
             />
             <div className={styles.toteOverlay} />
           </div>
@@ -550,6 +556,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
                 width={520}
                 height={620}
                 className={styles.roundedImage}
+                unoptimized
               />
             </motion.div>
             <div className={styles.buyFormWrap}>
