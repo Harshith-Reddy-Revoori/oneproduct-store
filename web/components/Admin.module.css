@@ -10,8 +10,9 @@
   --admin-input-border: rgba(184, 40, 40, 0.25);
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 240px minmax(0, 1fr);
   background: var(--admin-bg);
+  overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
@@ -153,10 +154,14 @@
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
   .main {
+    padding: 16px;
+    padding-top: calc(var(--nav-h, 64px) + 16px);
     padding-bottom: 88px;
   }
 }
@@ -226,6 +231,8 @@
   padding: 24px;
   margin-bottom: 24px;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .sectionTitle {
@@ -303,6 +310,8 @@
 .textarea,
 .select {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 12px 14px;
   border: 1px solid var(--admin-input-border);
   border-radius: 12px;
@@ -310,6 +319,7 @@
   background: #fff;
   color: var(--ink);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
 }
 
 .input:focus,
@@ -409,33 +419,48 @@
 }
 
 .formRowSizes {
-  grid-template-columns: 1fr 0 140px 160px 120px auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr) 100px 120px 100px auto minmax(0, 1fr) auto;
+  gap: 12px 16px;
 }
 
-.formRowSizes .formRowItem[type="hidden"],
+@media (min-width: 1100px) {
+  .formRowSizes {
+    grid-template-columns: minmax(0, 1fr) 140px 160px 120px auto minmax(0, 1fr) auto;
+  }
+}
+
+/* Remove hidden inputs from layout flow to prevent overlap */
 .formRowSizes input[type="hidden"] {
-  grid-column: 2;
-  width: 0;
-  height: 0;
-  overflow: hidden;
+  position: absolute;
+  width: 1px;
+  height: 1px;
   padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   border: 0;
 }
 
 @media (max-width: 900px) {
   .formRowSizes {
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--radius);
+    background: var(--admin-card-bg);
+  }
+  .formRowSizes > * {
+    grid-column: 1 !important;
+  }
+  .formRowSizes input[type="hidden"] {
+    display: none !important;
   }
 }
 
 .formRowCoupons {
-  grid-template-columns: 160px 160px 160px 160px 1fr 1fr 140px 120px auto;
-}
-
-@media (max-width: 1200px) {
-  .formRowCoupons {
-    grid-template-columns: 1fr 1fr auto;
-  }
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 12px;
 }
 
 .formRowItem {
@@ -464,6 +489,7 @@
 /* Table */
 .tableWrap {
   overflow-x: auto;
+  max-width: 100%;
   border: 1px solid var(--admin-border);
   border-radius: var(--radius-lg);
   background: var(--admin-card-bg);
@@ -629,8 +655,14 @@
 
 .inlineFormRow .textarea {
   flex: 1;
-  min-width: 200px;
+  min-width: 0;
   min-height: 90px;
+}
+
+@media (min-width: 480px) {
+  .inlineFormRow .textarea {
+    min-width: 200px;
+  }
 }
 
 .emptyState {

@@ -5,6 +5,7 @@ import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
 import { formatPaise } from "@/lib/money";
 import type { Prisma } from "@prisma/client";
+import Link from "next/link";
 import { addSize, updateSize, deleteSize } from "./actions";
 import styles from "@/components/Admin.module.css";
 
@@ -57,7 +58,10 @@ export default async function SizesAdminPage({
   if (!p) {
     return (
       <>
-        <h1 className={styles.pageTitle}>Sizes</h1>
+        <div className={styles.headerRow}>
+          <h1 className={styles.pageTitle}>Sizes</h1>
+          <Link className={styles.backLink} href="/admin">← Admin</Link>
+        </div>
         <p className={styles.emptyState}>No active product found. Create one in the admin.</p>
       </>
     );
@@ -72,7 +76,10 @@ export default async function SizesAdminPage({
 
   return (
     <>
-      <h1 className={styles.pageTitle}>Sizes — {p.name}</h1>
+      <div className={styles.headerRow}>
+        <h1 className={styles.pageTitle}>Sizes — {p.name}</h1>
+        <Link className={styles.backLink} href="/admin">← Admin</Link>
+      </div>
 
       {ok ? <div className={`${styles.alert} ${styles.alertSuccess}`}>Saved ✓</div> : null}
       {err ? <div className={`${styles.alert} ${styles.alertError}`}>{err}</div> : null}

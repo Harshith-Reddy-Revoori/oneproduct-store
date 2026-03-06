@@ -12,7 +12,7 @@ const orbitron = Orbitron({ subsets: ["latin"], weight: ["500", "600", "700"], v
 export const metadata: Metadata = {
   title: "OOKA | Sweetness that fits your life",
   description: "Zero Sugar, Zero Cavities. OOKA Monk Fruit Allulose Sweetener — natural sweetness without the guilt.",
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

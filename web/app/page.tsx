@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const db = await prisma.products.findFirst({
-    where: { active: true, out_of_stock: false },
+    where: { active: true },
     include: { product_sizes: true },
     orderBy: { created_at: "desc" },
   });

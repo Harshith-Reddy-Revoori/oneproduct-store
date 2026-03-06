@@ -307,7 +307,7 @@ export default function Storefront({ product }: { product: StoreProduct | null }
             viewport={{ once: true, amount: 0.3 }}
             transition={transitionSlow}
           >
-            <span className={styles.lipstickLabel}>DAILy favourites</span>
+            <span className={styles.lipstickLabel}>Daily favourites</span>
             <h2 className={styles.lipstickTitle}>Backed by Science</h2>
             <p className={styles.lipstickSub}>SWEETENER REIMAGINED</p>
           </motion.div>
@@ -590,7 +590,9 @@ export default function Storefront({ product }: { product: StoreProduct | null }
                             aria-pressed={selected}
                           >
                             <span className={styles.sizeLabel}>{s.label}</span>
-                            <span className={styles.sizeSub}>{formatPaise(priceFor(s))} · {s.stock} left</span>
+                            <span className={styles.sizeSub}>
+                              {s.stock <= 0 ? "Sold out" : formatPaise(priceFor(s))}
+                            </span>
                           </button>
                         );
                       })

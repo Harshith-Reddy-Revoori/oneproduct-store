@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
+import Link from "next/link";
 import { saveProduct } from "./actions";
 import styles from "@/components/Admin.module.css";
 
@@ -32,7 +33,10 @@ export default async function ProductAdminPage({
 
   return (
     <>
-      <h1 className={styles.pageTitle}>Product</h1>
+      <div className={styles.headerRow}>
+        <h1 className={styles.pageTitle}>Product</h1>
+        <Link className={styles.backLink} href="/admin">← Admin</Link>
+      </div>
 
       {ok ? <div className={`${styles.alert} ${styles.alertSuccess}`}>Saved ✓</div> : null}
       {err ? <div className={`${styles.alert} ${styles.alertError}`}>{err}</div> : null}

@@ -29,6 +29,30 @@ export async function updateOrderStatus(formData: FormData) {
   if (!isStatus(status)) redirect(`/admin/orders/${id}?err=Invalid%20status`);
 
   try {
+    const order = await prisma.orders.findUnique({
+      where: { id },
+      select: { product_id: true, size_label: true, quantity: true, payment_status: true },
+    });
+    if (!order) redirect(`/admin/orders/${id}?err=Order%20not%20found`);
+
+    const prevStatus = order.payment_status;
+    const isRestoringStock =
+      (status === "refunded" || status === "failed") &&
+      prevStatus !== "refunded" &&
+      prevStatus !== "failed";
+
+    if (isRestoringStock) {
+      const sizeRow = await prisma.product_sizes.findFirst({
+        where: { product_id: order.product_id, label: order.size_label },
+      });
+      if (sizeRow) {
+        await prisma.product_sizes.update({
+          where: { id: sizeRow.id },
+          data: { stock: { increment: Number(order.quantity) } },
+        });
+      }
+    }
+
     await prisma.orders.update({
       where: { id },
       data: { payment_status: status, updated_at: new Date() },

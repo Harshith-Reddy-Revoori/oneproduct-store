@@ -5,6 +5,7 @@ import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
 import { formatPaise } from "@/lib/money";
 import type { Prisma } from "@prisma/client";
+import Link from "next/link";
 import { addCoupon, updateCoupon, deleteCoupon } from "./actions";
 import styles from "@/components/Admin.module.css";
 
@@ -86,7 +87,10 @@ export default async function CouponsAdminPage({
 
   return (
     <>
-      <h1 className={styles.pageTitle}>Coupons</h1>
+      <div className={styles.headerRow}>
+        <h1 className={styles.pageTitle}>Coupons</h1>
+        <Link className={styles.backLink} href="/admin">← Admin</Link>
+      </div>
 
       {ok ? <div className={`${styles.alert} ${styles.alertSuccess}`}>Saved ✓</div> : null}
       {err ? <div className={`${styles.alert} ${styles.alertError}`}>{err}</div> : null}
@@ -145,7 +149,7 @@ export default async function CouponsAdminPage({
         ) : (
           <div className={styles.formGrid} style={{ gap: "12px" }}>
             {list.map((c: AdminCoupon) => (
-              <div key={c.id} className={styles.section} style={{ marginBottom: "12px", padding: "16px" }}>
+              <div key={c.id} className={styles.section} style={{ marginBottom: "12px", padding: "16px", border: "1px solid var(--admin-border)", borderRadius: "var(--radius)" }}>
                 <div className={styles.formGrid} style={{ gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", alignItems: "center", gap: "12px" }}>
                   <div className={styles.rowMono}>{c.code}</div>
 

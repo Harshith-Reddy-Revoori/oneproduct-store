@@ -148,7 +148,7 @@ export default async function CheckoutPage({
 
   const qty = parseQty(qtyParam);
   if (chosen.stock < qty) {
-    redirect(`/?err=Only%20${encodeURIComponent(String(chosen.stock))}%20left%20for%20${encodeURIComponent(chosen.label)}`);
+    redirect("/?err=Insufficient%20stock%20for%20this%20size");
   }
 
   let coupon: CouponRow | null = null;
@@ -187,7 +187,7 @@ export default async function CheckoutPage({
           </div>
     
           <div className={styles.meta}>Size: <strong>{chosen.label}</strong></div>
-          <div className={styles.meta}>Quantity: <strong>{qty}</strong> (Stock left: {chosen.stock})</div>
+          <div className={styles.meta}>Quantity: <strong>{qty}</strong></div>
     
           {coupon ? (
             <div className={styles.meta}>
